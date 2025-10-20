@@ -27,17 +27,6 @@
         }, 3200);
     }
 
-    function updateThemeButtons(action, activeTheme) {
-        document.querySelectorAll(`[data-action="${action}"]`).forEach((btn) => {
-            const theme = btn.getAttribute('data-theme');
-            if (theme === activeTheme) {
-                btn.classList.add('btn--primary');
-            } else {
-                btn.classList.remove('btn--primary');
-            }
-        });
-    }
-
     function updateState(state) {
         if (!state) {
             return;
@@ -79,11 +68,15 @@
             typeSelect.value = String(state.selected.game_type);
         }
 
-        document.body.classList.remove('theme-dark', 'theme-light');
-        document.body.classList.add(`theme-${state.operator_theme}`);
+        const operatorTemplateSelect = document.getElementById('operator-template');
+        if (operatorTemplateSelect && document.activeElement !== operatorTemplateSelect) {
+            operatorTemplateSelect.value = state.operator_template;
+        }
 
-        updateThemeButtons('set-operator-theme', state.operator_theme);
-        updateThemeButtons('set-display-theme', state.display_theme);
+        const displayTemplateSelect = document.getElementById('display-template');
+        if (displayTemplateSelect && document.activeElement !== displayTemplateSelect) {
+            displayTemplateSelect.value = state.display_template;
+        }
     }
 
     function attachBridge(bridge) {
@@ -99,25 +92,25 @@
             });
         }
 
-        document.querySelectorAll('[data-action="set-display-theme"]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const theme = btn.getAttribute('data-theme');
-                bridge.setDisplayTheme(theme);
-                updateThemeButtons('set-display-theme', theme);
-                showToast(`Tema del display: ${theme}`);
+        const operatorTemplateSelect = document.getElementById('operator-template');
+        if (operatorTemplateSelect) {
+            operatorTemplateSelect.addEventListener('change', () => {
+                const value = operatorTemplateSelect.value;
+                bridge.setOperatorTemplate(value);
+                const label = operatorTemplateSelect.selectedOptions[0]?.textContent || value;
+                showToast(`Template del operador: ${label}`);
             });
-        });
+        }
 
-        document.querySelectorAll('[data-action="set-operator-theme"]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const theme = btn.getAttribute('data-theme');
-                bridge.setOperatorTheme(theme);
-                document.body.classList.remove('theme-dark', 'theme-light');
-                document.body.classList.add(`theme-${theme}`);
-                updateThemeButtons('set-operator-theme', theme);
-                showToast(`Tema del operador: ${theme}`);
+        const displayTemplateSelect = document.getElementById('display-template');
+        if (displayTemplateSelect) {
+            displayTemplateSelect.addEventListener('change', () => {
+                const value = displayTemplateSelect.value;
+                bridge.setDisplayTemplate(value);
+                const label = displayTemplateSelect.selectedOptions[0]?.textContent || value;
+                showToast(`Template del display: ${label}`);
             });
-        });
+        }
 
         const actionMap = {
             'start-pause': () => bridge.startPause(),

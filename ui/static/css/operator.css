@@ -9,7 +9,7 @@ body.operator {
     color: #e2e8f0;
 }
 
-body.operator.theme-light {
+body.operator.operator--light {
     background: linear-gradient(160deg, #f5f7fb 0%, #e2e8f0 55%, #cbd5f5 100%);
     color: #1e293b;
 }
@@ -31,7 +31,7 @@ body.operator.theme-light {
     gap: 24px;
 }
 
-body.operator.theme-light .panel {
+body.operator.operator--light .panel {
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 32px 60px rgba(136, 149, 182, 0.3);
 }
@@ -115,7 +115,7 @@ body.operator.theme-light .panel {
     background: rgba(255, 255, 255, 0.06);
 }
 
-body.operator.theme-light .foul-card {
+body.operator.operator--light .foul-card {
     background: rgba(15, 23, 42, 0.08);
 }
 
@@ -147,8 +147,8 @@ input[type="text"] {
     color: inherit;
 }
 
-body.operator.theme-light select,
-body.operator.theme-light input[type="text"] {
+body.operator.operator--light select,
+body.operator.operator--light input[type="text"] {
     background: rgba(148, 163, 184, 0.18);
 }
 

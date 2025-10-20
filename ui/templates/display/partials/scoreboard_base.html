@@ -5,12 +5,13 @@
     <title>BasketBoard Pro — Display</title>
     <link rel="stylesheet" href="{{ static_url }}/css/display.css" />
 </head>
-<body class="display theme-{{ theme }}"
+<body class="display {% block body_variant %}display--dark{% endblock %}"
       style="--local-primary: {{ state.team_local.color_primary }};
              --local-secondary: {{ state.team_local.color_secondary }};
              --visit-primary: {{ state.team_visit.color_primary }};
              --visit-secondary: {{ state.team_visit.color_secondary }};">
-    <div class="scoreboard">
+    <div class="scoreboard {% block scoreboard_variant %}{% endblock %}">
+        {% block scoreboard_content %}
         <header class="scoreboard__header">
             <div class="team team--local">
                 <div class="team__name">{{ state.team_local.name }}</div>
@@ -40,6 +41,7 @@
                 <span class="detail__value">{{ state.game_type.name }} · {{ state.game_type.time_per_quarter }} por período</span>
             </div>
         </section>
+        {% endblock %}
     </div>
 </body>
 </html>

@@ -19,7 +19,29 @@ from ui.template_renderer import renderer
 ROOT_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = QUrl.fromLocalFile(str(ROOT_DIR) + "/")
 STATIC_URL = "ui/static"
-THEMES = ["dark", "light"]
+TEMPLATES_ROOT = Path(__file__).resolve().parent / "templates"
+
+
+def _template_dir(section: str) -> Path:
+    return TEMPLATES_ROOT / section
+
+
+def _list_templates(section: str) -> List[str]:
+    """Return relative template paths available for a section."""
+
+    base_dir = _template_dir(section)
+    if not base_dir.exists():
+        return []
+    templates: List[str] = []
+    for path in sorted(base_dir.glob("*.html")):
+        if path.is_file():
+            templates.append(path.relative_to(TEMPLATES_ROOT).as_posix())
+    return templates
+
+
+def _template_label(template_path: str) -> str:
+    stem = Path(template_path).stem.replace("_", " ").replace("-", " ")
+    return stem.title()
 
 
 def _team_view(team: Team) -> Dict[str, str]:
@@ -44,11 +66,24 @@ def _game_type_view(game_type: GameType) -> Dict[str, str]:
 class DisplayWindow(QWidget):
     """Public scoreboard rendered through a QWebEngineView."""
 
-    def __init__(self, manager: GameManager, theme: str = "dark") -> None:
+    def __init__(
+        self,
+        manager: GameManager,
+        template_name: Optional[str] = None,
+    ) -> None:
         super().__init__()
         self.setWindowTitle("BasketBoard Pro — Display")
         self.manager = manager
-        self.theme = theme if theme in THEMES else THEMES[0]
+        available = self.available_templates
+        if not available:
+            raise RuntimeError("No display templates available")
+        default_template = "display/scoreboard_dark.html"
+        if template_name and template_name in available:
+            self.template_name = template_name
+        elif default_template in available:
+            self.template_name = default_template
+        else:
+            self.template_name = available[0]
 
         self.manager.updated.connect(self.refresh)
 
@@ -74,23 +109,26 @@ class DisplayWindow(QWidget):
         }
         return {
             "state": state,
-            "theme": self.theme,
             "static_url": STATIC_URL,
         }
 
     def refresh(self) -> None:
-        html = renderer.render("display/scoreboard.html", self._build_context())
+        html = renderer.render(self.template_name, self._build_context())
         self.view.setHtml(html, BASE_URL)
 
-    def set_theme(self, theme: str) -> None:
-        if theme not in THEMES:
+    def set_template(self, template_name: str) -> None:
+        if template_name not in self.available_templates:
             return
-        self.theme = theme
+        self.template_name = template_name
         self.refresh()
 
     def beep(self) -> None:
         QApplication.beep()
         self.refresh()
+
+    @property
+    def available_templates(self) -> List[str]:
+        return _list_templates("display")
 
 
 class OperatorBridge(QObject):
@@ -142,12 +180,12 @@ class OperatorBridge(QObject):
         self._window.create_match(local_index, visit_index, game_type_index)
 
     @Slot(str)
-    def setDisplayTheme(self, theme: str) -> None:
-        self._window.set_display_theme(theme)
+    def setDisplayTemplate(self, template_name: str) -> None:
+        self._window.set_display_template(template_name)
 
     @Slot(str)
-    def setOperatorTheme(self, theme: str) -> None:
-        self._window.set_operator_theme(theme)
+    def setOperatorTemplate(self, template_name: str) -> None:
+        self._window.set_operator_template(template_name)
 
     @Slot(str, result=bool)
     def setPregameCountdown(self, value: str) -> bool:
@@ -182,9 +220,9 @@ class OperatorWindow(QWidget):
         teams: List[Team],
         game_types: List[GameType],
         on_create_match: Callable[[int, int, int], None],
-        on_set_display_theme: Callable[[str], None],
-        initial_operator_theme: str = "dark",
-        initial_display_theme: str = "dark",
+        on_set_display_template: Callable[[str], None],
+        initial_operator_template: Optional[str] = None,
+        initial_display_template: Optional[str] = None,
     ) -> None:
         super().__init__()
         self.setWindowTitle("BasketBoard Pro — Operador")
@@ -195,10 +233,30 @@ class OperatorWindow(QWidget):
         self.teams = teams
         self.game_types = game_types
         self._on_create_match = on_create_match
-        self._on_set_display_theme = on_set_display_theme
+        self._on_set_display_template = on_set_display_template
 
-        self._operator_theme = initial_operator_theme if initial_operator_theme in THEMES else THEMES[0]
-        self._display_theme = initial_display_theme if initial_display_theme in THEMES else THEMES[0]
+        operator_templates = self.available_operator_templates
+        if not operator_templates:
+            raise RuntimeError("No operator templates available")
+        display_templates = self.available_display_templates
+        if not display_templates:
+            raise RuntimeError("No display templates available")
+
+        default_operator_template = "operator/dashboard_dark.html"
+        if initial_operator_template and initial_operator_template in operator_templates:
+            self._operator_template = initial_operator_template
+        elif default_operator_template in operator_templates:
+            self._operator_template = default_operator_template
+        else:
+            self._operator_template = operator_templates[0]
+
+        default_display_template = "display/scoreboard_dark.html"
+        if initial_display_template and initial_display_template in display_templates:
+            self._display_template = initial_display_template
+        elif default_display_template in display_templates:
+            self._display_template = default_display_template
+        else:
+            self._display_template = display_templates[0]
 
         self.view = QWebEngineView(self)
         layout = QVBoxLayout(self)
@@ -250,21 +308,30 @@ class OperatorWindow(QWidget):
                 "visit": self._team_index(match.team_visit),
                 "game_type": self._game_type_index(match.game_type),
             },
-            "operator_theme": self._operator_theme,
-            "display_theme": self._display_theme,
+            "operator_template": self._operator_template,
+            "display_template": self._display_template,
         }
         return state
 
     def _build_template_context(self) -> Dict[str, object]:
         state = self._build_state()
+        operator_options = [
+            {"value": name, "label": _template_label(name)}
+            for name in self.available_operator_templates
+        ]
+        display_options = [
+            {"value": name, "label": _template_label(name)}
+            for name in self.available_display_templates
+        ]
         return {
             "state": state,
             "teams": [_team_view(team) for team in self.teams],
             "game_types": [_game_type_view(game_type) for game_type in self.game_types],
             "selected": state["selected"],
-            "themes": THEMES,
-            "operator_theme": self._operator_theme,
-            "display_theme": self._display_theme,
+            "operator_templates": operator_options,
+            "display_templates": display_options,
+            "operator_template": self._operator_template,
+            "display_template": self._display_template,
             "static_url": STATIC_URL,
         }
 
@@ -272,7 +339,8 @@ class OperatorWindow(QWidget):
     # Rendering and updates
     # ------------------------------------------------------------------
     def _render_template(self) -> None:
-        html = renderer.render("operator/dashboard.html", self._build_template_context())
+        self._page_ready = False
+        html = renderer.render(self._operator_template, self._build_template_context())
         self.view.setHtml(html, BASE_URL)
 
     def _on_load_finished(self, _success: bool) -> None:
@@ -291,15 +359,25 @@ class OperatorWindow(QWidget):
     def create_match(self, local_index: int, visit_index: int, game_type_index: int) -> None:
         self._on_create_match(local_index, visit_index, game_type_index)
 
-    def set_display_theme(self, theme: str) -> None:
-        if theme not in THEMES:
+    def set_display_template(self, template_name: str) -> None:
+        if template_name not in self.available_display_templates:
             return
-        self._display_theme = theme
-        self._on_set_display_theme(theme)
+        self._display_template = template_name
+        self._on_set_display_template(template_name)
         self.refresh()
 
-    def set_operator_theme(self, theme: str) -> None:
-        if theme not in THEMES:
+    def set_operator_template(self, template_name: str) -> None:
+        if template_name not in self.available_operator_templates:
             return
-        self._operator_theme = theme
-        self.refresh()
+        if template_name == self._operator_template:
+            return
+        self._operator_template = template_name
+        self._render_template()
+
+    @property
+    def available_operator_templates(self) -> List[str]:
+        return _list_templates("operator")
+
+    @property
+    def available_display_templates(self) -> List[str]:
+        return _list_templates("display")

@@ -44,7 +44,8 @@ class AppController:
             teams=self.teams,
             game_types=self.game_types,
             on_create_match=self.configure_match,
-            on_set_display_theme=self.set_display_theme,
+            on_set_display_template=self.set_display_template,
+            initial_display_template=self.display.template_name,
         )
 
         # --- Ajustar tamaños iniciales ---
@@ -83,6 +84,6 @@ class AppController:
         match = Match(local, visit, game_type)
         self.manager.configure_match(match)
 
-    def set_display_theme(self, theme: str) -> None:
-        self.display.set_theme(theme)
+    def set_display_template(self, template_name: str) -> None:
+        self.display.set_template(template_name)
 
