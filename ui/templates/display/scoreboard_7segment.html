@@ -1,0 +1,36 @@
+{% extends "display/partials/scoreboard_base.html" %}
+
+{% block body_variant %}display--seven-segment{% endblock %}
+{% block scoreboard_variant %}scoreboard--seven-segment{% endblock %}
+
+{% block scoreboard_content %}
+<header class="scoreboard__header seven-segment">
+    <div class="team team--local seven-segment__team">
+        <div class="team__name">{{ state.team_local.name }}</div>
+        <div class="team__score seven-segment__digits">{{ state.points_local }}</div>
+    </div>
+    <div class="scoreboard__timer seven-segment__timer">
+        <div class="timer__label">Tiempo</div>
+        <div class="timer__value seven-segment__digits">{{ state.time }}</div>
+        <div class="timer__period">Período {{ state.period }}</div>
+    </div>
+    <div class="team team--visit seven-segment__team">
+        <div class="team__name">{{ state.team_visit.name }}</div>
+        <div class="team__score seven-segment__digits">{{ state.points_visit }}</div>
+    </div>
+</header>
+<section class="scoreboard__details seven-segment__details">
+    <div class="detail__item">
+        <span class="detail__label">Faltas local</span>
+        <span class="detail__value seven-segment__digits">{{ state.fouls_local }}</span>
+    </div>
+    <div class="detail__item">
+        <span class="detail__label">Faltas visita</span>
+        <span class="detail__value seven-segment__digits">{{ state.fouls_visit }}</span>
+    </div>
+    <div class="detail__item">
+        <span class="detail__label">Duración período</span>
+        <span class="detail__value seven-segment__digits">{{ state.game_type.time_per_quarter }}</span>
+    </div>
+</section>
+{% endblock %}

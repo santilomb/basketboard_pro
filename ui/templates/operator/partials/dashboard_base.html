@@ -5,7 +5,7 @@
     <title>BasketBoard Pro — Operador</title>
     <link rel="stylesheet" href="{{ static_url }}/css/operator.css" />
 </head>
-<body class="operator theme-{{ operator_theme }}">
+<body class="operator {% block body_variant %}operator--dark{% endblock %}">
     <main class="layout">
         <section class="panel panel--score">
             <header class="panel__header">
@@ -36,7 +36,7 @@
         <section class="panel">
             <header class="panel__header">
                 <h2 class="panel__title">Configurar partido</h2>
-                <div class="panel__subtitle">Elige equipos, tipo de juego y tema</div>
+                <div class="panel__subtitle">Elige equipos, tipo de juego y templates</div>
             </header>
             <form id="match-form" class="form-grid">
                 <label class="form-field">
@@ -63,26 +63,22 @@
                         {% endfor %}
                     </select>
                 </label>
-                <div class="form-field theme-switcher">
-                    <span class="form-label">Tema del display</span>
-                    <div class="theme-buttons">
-                        {% for theme_option in themes %}
-                        <button type="button" class="btn {% if theme_option == display_theme %}btn--primary{% endif %}"
-                                data-action="set-display-theme"
-                                data-theme="{{ theme_option }}">{{ theme_option|capitalize }}</button>
+                <label class="form-field">
+                    <span class="form-label">Template del operador</span>
+                    <select id="operator-template" name="operator_template">
+                        {% for template in operator_templates %}
+                        <option value="{{ template.value }}" {% if template.value == operator_template %}selected{% endif %}>{{ template.label }}</option>
                         {% endfor %}
-                    </div>
-                </div>
-                <div class="form-field theme-switcher">
-                    <span class="form-label">Tema del operador</span>
-                    <div class="theme-buttons">
-                        {% for theme_option in themes %}
-                        <button type="button" class="btn {% if theme_option == operator_theme %}btn--primary{% endif %}"
-                                data-action="set-operator-theme"
-                                data-theme="{{ theme_option }}">{{ theme_option|capitalize }}</button>
+                    </select>
+                </label>
+                <label class="form-field">
+                    <span class="form-label">Template del display</span>
+                    <select id="display-template" name="display_template">
+                        {% for template in display_templates %}
+                        <option value="{{ template.value }}" {% if template.value == display_template %}selected{% endif %}>{{ template.label }}</option>
                         {% endfor %}
-                    </div>
-                </div>
+                    </select>
+                </label>
                 <div class="form-actions">
                     <button type="submit" class="btn btn--primary">Aplicar configuración</button>
                 </div>
