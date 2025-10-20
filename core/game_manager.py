@@ -1,4 +1,7 @@
 from PySide6.QtCore import QObject, Signal
+
+from models.match import Match
+
 from .timer import CountdownTimer, mmss_to_secs
 
 
@@ -96,6 +99,18 @@ class GameManager(QObject):
         if mmss_to_secs(self.countdown.remaining_mmss) > 0:
             self.countdown.start()
             self.updated.emit()
+
+    # -------------------------------------------------
+    # 🔁 Configuración completa del partido
+    # -------------------------------------------------
+    def configure_match(self, match: Match):
+        """Reemplaza el partido actual por uno nuevo y reinicia temporizadores."""
+        self.timer.pause()
+        self.countdown.pause()
+        self.match = match
+        self.timer.reset(self.match.game_type.time_per_quarter)
+        self.countdown.reset("00:00")
+        self.updated.emit()
 
     # -------------------------------------------------
     # 🔔 Eventos internos

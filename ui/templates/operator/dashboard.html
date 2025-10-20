@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>BasketBoard Pro — Operador</title>
+    <link rel="stylesheet" href="{{ static_url }}/css/operator.css" />
+</head>
+<body class="operator theme-{{ operator_theme }}">
+    <main class="layout">
+        <section class="panel panel--score">
+            <header class="panel__header">
+                <h1 class="panel__title">Marcador en vivo</h1>
+                <div class="panel__subtitle">Actualizado automáticamente desde el GameManager</div>
+            </header>
+            <div class="score-grid">
+                <div class="score-card score-card--local">
+                    <span class="score-card__label" data-field="local-name">{{ state.team_local.name }}</span>
+                    <span class="score-card__value" data-field="local-score">{{ state.points_local }}</span>
+                </div>
+                <div class="score-card score-card--timer">
+                    <span class="timer__value" data-field="timer">{{ state.time }}</span>
+                    <span class="timer__meta" data-field="period">Período {{ state.period }}</span>
+                    <span class="timer__countdown" data-field="countdown">Cuenta previa: {{ state.countdown }}</span>
+                </div>
+                <div class="score-card score-card--visit">
+                    <span class="score-card__label" data-field="visit-name">{{ state.team_visit.name }}</span>
+                    <span class="score-card__value" data-field="visit-score">{{ state.points_visit }}</span>
+                </div>
+            </div>
+            <div class="foul-grid">
+                <div class="foul-card">Faltas local <strong data-field="fouls-local">{{ state.fouls_local }}</strong></div>
+                <div class="foul-card">Faltas visita <strong data-field="fouls-visit">{{ state.fouls_visit }}</strong></div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <header class="panel__header">
+                <h2 class="panel__title">Configurar partido</h2>
+                <div class="panel__subtitle">Elige equipos, tipo de juego y tema</div>
+            </header>
+            <form id="match-form" class="form-grid">
+                <label class="form-field">
+                    <span class="form-label">Equipo local</span>
+                    <select id="local-team" name="local">
+                        {% for team in teams %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.local %}selected{% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="form-field">
+                    <span class="form-label">Equipo visitante</span>
+                    <select id="visit-team" name="visit">
+                        {% for team in teams %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.visit %}selected{% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="form-field">
+                    <span class="form-label">Tipo de juego</span>
+                    <select id="game-type" name="game_type">
+                        {% for g in game_types %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.game_type %}selected{% endif %}>{{ g.name }} — {{ g.time_per_quarter }} por período</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <div class="form-field theme-switcher">
+                    <span class="form-label">Tema del display</span>
+                    <div class="theme-buttons">
+                        {% for theme_option in themes %}
+                        <button type="button" class="btn {% if theme_option == display_theme %}btn--primary{% endif %}"
+                                data-action="set-display-theme"
+                                data-theme="{{ theme_option }}">{{ theme_option|capitalize }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-field theme-switcher">
+                    <span class="form-label">Tema del operador</span>
+                    <div class="theme-buttons">
+                        {% for theme_option in themes %}
+                        <button type="button" class="btn {% if theme_option == operator_theme %}btn--primary{% endif %}"
+                                data-action="set-operator-theme"
+                                data-theme="{{ theme_option }}">{{ theme_option|capitalize }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Aplicar configuración</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel">
+            <header class="panel__header">
+                <h2 class="panel__title">Controles de juego</h2>
+                <div class="panel__subtitle">Cronómetro y marcador</div>
+            </header>
+            <div class="controls-grid">
+                <div class="control-card">
+                    <h3>Reloj principal</h3>
+                    <div class="button-group">
+                        <button type="button" class="btn" data-action="start-pause">Iniciar / Pausar</button>
+                        <button type="button" class="btn" data-action="reset-time">Reiniciar período</button>
+                    </div>
+                </div>
+                <div class="control-card">
+                    <h3>Puntaje local</h3>
+                    <div class="button-group button-group--dense">
+                        <button type="button" class="btn" data-action="score-local" data-value="1">+1</button>
+                        <button type="button" class="btn" data-action="score-local" data-value="2">+2</button>
+                        <button type="button" class="btn" data-action="score-local" data-value="3">+3</button>
+                        <button type="button" class="btn" data-action="score-local" data-value="-1">-1</button>
+                    </div>
+                </div>
+                <div class="control-card">
+                    <h3>Puntaje visitante</h3>
+                    <div class="button-group button-group--dense">
+                        <button type="button" class="btn" data-action="score-visit" data-value="1">+1</button>
+                        <button type="button" class="btn" data-action="score-visit" data-value="2">+2</button>
+                        <button type="button" class="btn" data-action="score-visit" data-value="3">+3</button>
+                        <button type="button" class="btn" data-action="score-visit" data-value="-1">-1</button>
+                    </div>
+                </div>
+                <div class="control-card">
+                    <h3>Faltas</h3>
+                    <div class="button-group button-group--dense">
+                        <button type="button" class="btn" data-action="foul-local" data-value="1">Local +</button>
+                        <button type="button" class="btn" data-action="foul-local" data-value="-1">Local -</button>
+                        <button type="button" class="btn" data-action="foul-visit" data-value="1">Visita +</button>
+                        <button type="button" class="btn" data-action="foul-visit" data-value="-1">Visita -</button>
+                    </div>
+                </div>
+                <div class="control-card">
+                    <h3>Período</h3>
+                    <button type="button" class="btn btn--outline" data-action="next-period">Siguiente período</button>
+                </div>
+                <div class="control-card">
+                    <h3>Cuenta regresiva previa</h3>
+                    <div class="countdown-control">
+                        <input id="countdown-input" type="text" value="{{ state.countdown }}" placeholder="MM:SS" />
+                        <div class="button-group">
+                            <button type="button" class="btn" data-action="set-countdown">Fijar</button>
+                            <button type="button" class="btn" data-action="start-countdown">Iniciar countdown</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <script src="{{ static_url }}/js/operator.js"></script>
+</body>
+</html>
