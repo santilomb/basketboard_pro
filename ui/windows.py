@@ -16,14 +16,6 @@ from models.game_type import GameType
 from models.team import Team
 from ui.template_renderer import renderer
 
-try:
-    from ui.chrome_display import ChromeDisplayView
-
-    _DISPLAY_BACKEND = "chrome"
-except ImportError:  # pragma: no cover - chrome backend optional
-    ChromeDisplayView = None
-    _DISPLAY_BACKEND = "qt"
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = QUrl.fromLocalFile(str(ROOT_DIR) + "/")
 STATIC_URL = "ui/static"
@@ -50,7 +42,7 @@ def _game_type_view(game_type: GameType) -> Dict[str, str]:
 
 
 class DisplayWindow(QWidget):
-    """Public scoreboard rendered through Chrome (CEF) when available."""
+    """Public scoreboard rendered through a QWebEngineView."""
 
     def __init__(self, manager: GameManager, theme: str = "dark") -> None:
         super().__init__()
@@ -60,10 +52,7 @@ class DisplayWindow(QWidget):
 
         self.manager.updated.connect(self.refresh)
 
-        if _DISPLAY_BACKEND == "chrome" and ChromeDisplayView is not None:
-            self.view = ChromeDisplayView(self)
-        else:
-            self.view = QWebEngineView(self)
+        self.view = QWebEngineView(self)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.view)
