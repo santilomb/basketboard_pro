@@ -1,238 +1,305 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
-from PySide6.QtWidgets import (
-    QApplication,  # ⬅️ agregado para usar QApplication.beep()
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGridLayout,
-    QComboBox, QLineEdit, QGroupBox
-)
+"""Qt windows rendered with modern HTML templates."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Callable, Dict, List, Optional
+
+from PySide6.QtCore import QObject, QUrl, Signal, Slot
+from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
+from PySide6.QtWebChannel import QWebChannel
+from PySide6.QtWebEngineWidgets import QWebEngineView
+
+from core.game_manager import GameManager
+from models.game_type import GameType
+from models.team import Team
+from ui.template_renderer import renderer
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+BASE_URL = QUrl.fromLocalFile(str(ROOT_DIR) + "/")
+STATIC_URL = "ui/static"
+THEMES = ["dark", "light"]
 
 
-def _h1(text):
-    """Etiqueta grande para valores principales."""
-    lab = QLabel(text)
-    lab.setAlignment(Qt.AlignCenter)
-    lab.setFont(QFont("Arial", 64, QFont.Bold))
-    return lab
+def _team_view(team: Team) -> Dict[str, str]:
+    return {
+        "name": team.name,
+        "logo": team.logo,
+        "color_primary": team.color_primary,
+        "color_secondary": team.color_secondary,
+    }
 
 
-def _h2(text):
-    """Etiqueta mediana para subtítulos."""
-    lab = QLabel(text)
-    lab.setAlignment(Qt.AlignCenter)
-    lab.setFont(QFont("Arial", 28, QFont.Bold))
-    return lab
+def _game_type_view(game_type: GameType) -> Dict[str, str]:
+    return {
+        "name": game_type.name,
+        "quarters": str(game_type.quarters),
+        "time_per_quarter": game_type.time_per_quarter,
+        "rest_between_quarters": game_type.rest_between_quarters,
+        "halftime_rest": game_type.halftime_rest,
+    }
 
 
-# ==========================================================
-# 🖥️ Pantalla principal para el público
-# ==========================================================
 class DisplayWindow(QWidget):
-    """Ventana que muestra el marcador y los datos al público."""
+    """Public scoreboard rendered through a QWebEngineView."""
 
-    def __init__(self, manager):
+    def __init__(self, manager: GameManager, theme: str = "dark") -> None:
         super().__init__()
         self.setWindowTitle("BasketBoard Pro — Display")
         self.manager = manager
+        self.theme = theme if theme in THEMES else THEMES[0]
+
         self.manager.updated.connect(self.refresh)
 
-        # --- Componentes visuales ---
-        self.lbl_time = _h1("10:00")
-        self.lbl_local = _h1("0")
-        self.lbl_visit = _h1("0")
-        self.lbl_period = _h2("Período 1")
-        self.lbl_fouls = _h2("Faltas L 0 | V 0")
-
+        self.view = QWebEngineView(self)
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.view)
 
-        row = QHBoxLayout()
-        col_left = QVBoxLayout()
-        col_right = QVBoxLayout()
-        col_center = QVBoxLayout()
-
-        col_left.addWidget(_h2("LOCAL"))
-        col_left.addWidget(self.lbl_local)
-
-        col_center.addWidget(self.lbl_time)
-        col_center.addWidget(self.lbl_period)
-        col_center.addWidget(self.lbl_fouls)
-
-        col_right.addWidget(_h2("VISITA"))
-        col_right.addWidget(self.lbl_visit)
-
-        row.addLayout(col_left, 1)
-        row.addLayout(col_center, 1)
-        row.addLayout(col_right, 1)
-
-        layout.addLayout(row)
         self.refresh()
 
-    def refresh(self):
-        """Actualiza los valores en pantalla."""
-        m = self.manager.match
-        self.lbl_time.setText(self.manager.timer.remaining_mmss)
-        self.lbl_local.setText(str(m.points_local))
-        self.lbl_visit.setText(str(m.points_visit))
-        self.lbl_period.setText(f"Período {m.current_period}")
-        self.lbl_fouls.setText(f"Faltas L {m.fouls_local} | V {m.fouls_visit}")
+    def _build_context(self) -> Dict[str, object]:
+        match = self.manager.match
+        state = {
+            "time": self.manager.timer.remaining_mmss,
+            "period": match.current_period,
+            "points_local": match.points_local,
+            "points_visit": match.points_visit,
+            "fouls_local": match.fouls_local,
+            "fouls_visit": match.fouls_visit,
+            "team_local": _team_view(match.team_local),
+            "team_visit": _team_view(match.team_visit),
+            "game_type": _game_type_view(match.game_type),
+        }
+        return {
+            "state": state,
+            "theme": self.theme,
+            "static_url": STATIC_URL,
+        }
 
-    def beep(self):
-        """Feedback al finalizar tiempo o countdown."""
-        QApplication.beep()  # ⬅️ beep nativo del sistema (sin dependencias extra)
-        self.lbl_time.setText("00:00")
-        self.repaint()
+    def refresh(self) -> None:
+        html = renderer.render("display/scoreboard.html", self._build_context())
+        self.view.setHtml(html, BASE_URL)
+
+    def set_theme(self, theme: str) -> None:
+        if theme not in THEMES:
+            return
+        self.theme = theme
+        self.refresh()
+
+    def beep(self) -> None:
+        QApplication.beep()
+        self.refresh()
 
 
-# ==========================================================
-# 🧑‍💻 Ventana de control del operador
-# ==========================================================
+class OperatorBridge(QObject):
+    """Bridge exposed to JavaScript via Qt WebChannel."""
+
+    stateUpdated = Signal(str)
+
+    def __init__(self, window: "OperatorWindow") -> None:
+        super().__init__()
+        self._window = window
+
+    # ------------------------------------------------------------------
+    # Requests from JavaScript to Python
+    # ------------------------------------------------------------------
+    @Slot()
+    def startPause(self) -> None:
+        self._window.manager.start_pause()
+
+    @Slot()
+    def resetTime(self) -> None:
+        self._window.manager.reset_time()
+
+    @Slot()
+    def nextPeriod(self) -> None:
+        self._window.manager.next_period()
+
+    @Slot()
+    def startPregame(self) -> None:
+        self._window.manager.start_pregame()
+
+    @Slot(int)
+    def scoreLocal(self, delta: int) -> None:
+        self._window.manager.score_local(delta)
+
+    @Slot(int)
+    def scoreVisit(self, delta: int) -> None:
+        self._window.manager.score_visit(delta)
+
+    @Slot(int)
+    def foulLocal(self, delta: int) -> None:
+        self._window.manager.foul_local(delta)
+
+    @Slot(int)
+    def foulVisit(self, delta: int) -> None:
+        self._window.manager.foul_visit(delta)
+
+    @Slot(int, int, int)
+    def createMatch(self, local_index: int, visit_index: int, game_type_index: int) -> None:
+        self._window.create_match(local_index, visit_index, game_type_index)
+
+    @Slot(str)
+    def setDisplayTheme(self, theme: str) -> None:
+        self._window.set_display_theme(theme)
+
+    @Slot(str)
+    def setOperatorTheme(self, theme: str) -> None:
+        self._window.set_operator_theme(theme)
+
+    @Slot(str, result=bool)
+    def setPregameCountdown(self, value: str) -> bool:
+        try:
+            self._window.manager.set_pregame_countdown(value)
+        except ValueError:
+            return False
+        else:
+            self._window.refresh()
+            return True
+
+    @Slot()
+    def requestInitialState(self) -> None:
+        self.push_state(self._window.last_state)
+
+    # ------------------------------------------------------------------
+    # Helpers for Python -> JavaScript notifications
+    # ------------------------------------------------------------------
+    def push_state(self, state: Optional[Dict[str, object]]) -> None:
+        if not state:
+            return
+        payload = json.dumps(state)
+        self.stateUpdated.emit(payload)
+
+
 class OperatorWindow(QWidget):
-    """Ventana para el operador que controla el partido."""
+    """Operator control panel rendered with HTML templates."""
 
-    def __init__(self, manager, teams, game_types):
+    def __init__(
+        self,
+        manager: GameManager,
+        teams: List[Team],
+        game_types: List[GameType],
+        on_create_match: Callable[[int, int, int], None],
+        on_set_display_theme: Callable[[str], None],
+        initial_operator_theme: str = "dark",
+        initial_display_theme: str = "dark",
+    ) -> None:
         super().__init__()
         self.setWindowTitle("BasketBoard Pro — Operador")
+
         self.manager = manager
         self.manager.updated.connect(self.refresh)
 
-        main_layout = QVBoxLayout(self)
+        self.teams = teams
+        self.game_types = game_types
+        self._on_create_match = on_create_match
+        self._on_set_display_theme = on_set_display_theme
 
-        # --------------------------------------------------
-        # 🏗️ Sección: Crear partido
-        # --------------------------------------------------
-        group_setup = QGroupBox("Crear partido")
-        setup_layout = QGridLayout(group_setup)
+        self._operator_theme = initial_operator_theme if initial_operator_theme in THEMES else THEMES[0]
+        self._display_theme = initial_display_theme if initial_display_theme in THEMES else THEMES[0]
 
-        self.cb_local = QComboBox()
-        self.cb_local.addItems([t.name for t in teams] or ["Local"])
+        self.view = QWebEngineView(self)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.view)
 
-        self.cb_visit = QComboBox()
-        self.cb_visit.addItems([t.name for t in teams[1:]] or ["Visitante"])
+        self._channel = QWebChannel(self.view.page())
+        self._bridge = OperatorBridge(self)
+        self._channel.registerObject("OperatorBridge", self._bridge)
+        self.view.page().setWebChannel(self._channel)
 
-        self.cb_game_type = QComboBox()
-        self.cb_game_type.addItems([g.name for g in game_types] or ["Genérico"])
+        self._page_ready = False
+        self.last_state: Optional[Dict[str, object]] = None
 
-        setup_layout.addWidget(QLabel("Equipo local:"), 0, 0)
-        setup_layout.addWidget(self.cb_local, 0, 1)
-        setup_layout.addWidget(QLabel("Equipo visitante:"), 1, 0)
-        setup_layout.addWidget(self.cb_visit, 1, 1)
-        setup_layout.addWidget(QLabel("Tipo de juego:"), 2, 0)
-        setup_layout.addWidget(self.cb_game_type, 2, 1)
+        self.view.loadFinished.connect(self._on_load_finished)
+        self._render_template()
+        self.last_state = self._build_state()
 
-        # --------------------------------------------------
-        # 🕐 Sección: Cronómetro
-        # --------------------------------------------------
-        group_time = QGroupBox("Reloj de juego")
-        time_layout = QHBoxLayout(group_time)
+    # ------------------------------------------------------------------
+    # State building helpers
+    # ------------------------------------------------------------------
+    def _team_index(self, team: Team) -> int:
+        try:
+            return self.teams.index(team)
+        except ValueError:
+            return 0
 
-        self.lbl_time = _h2(self.manager.timer.remaining_mmss)
-        btn_start_pause = QPushButton("Iniciar / Pausar")
-        btn_reset = QPushButton("Reset")
+    def _game_type_index(self, game_type: GameType) -> int:
+        try:
+            return self.game_types.index(game_type)
+        except ValueError:
+            return 0
 
-        btn_start_pause.clicked.connect(self.manager.start_pause)
-        btn_reset.clicked.connect(self.manager.reset_time)
+    def _build_state(self) -> Dict[str, object]:
+        match = self.manager.match
+        state = {
+            "time": self.manager.timer.remaining_mmss,
+            "period": match.current_period,
+            "points_local": match.points_local,
+            "points_visit": match.points_visit,
+            "fouls_local": match.fouls_local,
+            "fouls_visit": match.fouls_visit,
+            "countdown": self.manager.countdown.remaining_mmss,
+            "team_local": _team_view(match.team_local),
+            "team_visit": _team_view(match.team_visit),
+            "game_type": _game_type_view(match.game_type),
+            "selected": {
+                "local": self._team_index(match.team_local),
+                "visit": self._team_index(match.team_visit),
+                "game_type": self._game_type_index(match.game_type),
+            },
+            "operator_theme": self._operator_theme,
+            "display_theme": self._display_theme,
+        }
+        return state
 
-        time_layout.addWidget(self.lbl_time, 1)
-        time_layout.addWidget(btn_start_pause)
-        time_layout.addWidget(btn_reset)
+    def _build_template_context(self) -> Dict[str, object]:
+        state = self._build_state()
+        return {
+            "state": state,
+            "teams": [_team_view(team) for team in self.teams],
+            "game_types": [_game_type_view(game_type) for game_type in self.game_types],
+            "selected": state["selected"],
+            "themes": THEMES,
+            "operator_theme": self._operator_theme,
+            "display_theme": self._display_theme,
+            "static_url": STATIC_URL,
+        }
 
-        # --------------------------------------------------
-        # 🏀 Sección: Puntos y faltas
-        # --------------------------------------------------
-        group_score = QGroupBox("Marcador")
-        grid = QGridLayout(group_score)
+    # ------------------------------------------------------------------
+    # Rendering and updates
+    # ------------------------------------------------------------------
+    def _render_template(self) -> None:
+        html = renderer.render("operator/dashboard.html", self._build_template_context())
+        self.view.setHtml(html, BASE_URL)
 
-        # Local
-        btn_local_plus1 = QPushButton("Local +1")
-        btn_local_plus2 = QPushButton("Local +2")
-        btn_local_plus3 = QPushButton("Local +3")
-        btn_local_minus = QPushButton("Local -1")
-        btn_local_plus1.clicked.connect(lambda: self.manager.score_local(1))
-        btn_local_plus2.clicked.connect(lambda: self.manager.score_local(2))
-        btn_local_plus3.clicked.connect(lambda: self.manager.score_local(3))
-        btn_local_minus.clicked.connect(lambda: self.manager.score_local(-1))
-
-        # Visitante
-        btn_visit_plus1 = QPushButton("Visita +1")
-        btn_visit_plus2 = QPushButton("Visita +2")
-        btn_visit_plus3 = QPushButton("Visita +3")
-        btn_visit_minus = QPushButton("Visita -1")
-        btn_visit_plus1.clicked.connect(lambda: self.manager.score_visit(1))
-        btn_visit_plus2.clicked.connect(lambda: self.manager.score_visit(2))
-        btn_visit_plus3.clicked.connect(lambda: self.manager.score_visit(3))
-        btn_visit_minus.clicked.connect(lambda: self.manager.score_visit(-1))
-
-        # Faltas
-        btn_foul_local_plus = QPushButton("Falta L +")
-        btn_foul_local_minus = QPushButton("Falta L -")
-        btn_foul_visit_plus = QPushButton("Falta V +")
-        btn_foul_visit_minus = QPushButton("Falta V -")
-        btn_foul_local_plus.clicked.connect(lambda: self.manager.foul_local(1))
-        btn_foul_local_minus.clicked.connect(lambda: self.manager.foul_local(-1))
-        btn_foul_visit_plus.clicked.connect(lambda: self.manager.foul_visit(1))
-        btn_foul_visit_minus.clicked.connect(lambda: self.manager.foul_visit(-1))
-
-        grid.addWidget(btn_local_plus1, 0, 0)
-        grid.addWidget(btn_local_plus2, 0, 1)
-        grid.addWidget(btn_local_plus3, 0, 2)
-        grid.addWidget(btn_local_minus, 0, 3)
-        grid.addWidget(btn_visit_plus1, 1, 0)
-        grid.addWidget(btn_visit_plus2, 1, 1)
-        grid.addWidget(btn_visit_plus3, 1, 2)
-        grid.addWidget(btn_visit_minus, 1, 3)
-        grid.addWidget(btn_foul_local_plus, 2, 0)
-        grid.addWidget(btn_foul_local_minus, 2, 1)
-        grid.addWidget(btn_foul_visit_plus, 2, 2)
-        grid.addWidget(btn_foul_visit_minus, 2, 3)
-
-        # --------------------------------------------------
-        # 🔢 Sección: Período
-        # --------------------------------------------------
-        group_period = QGroupBox("Período actual")
-        layout_period = QHBoxLayout(group_period)
-
-        self.lbl_period = _h2(str(self.manager.match.current_period))
-        btn_next_period = QPushButton("Siguiente período")
-        btn_next_period.clicked.connect(self.manager.next_period)
-
-        layout_period.addWidget(QLabel("Actual:"))
-        layout_period.addWidget(self.lbl_period)
-        layout_period.addWidget(btn_next_period)
-
-        # --------------------------------------------------
-        # ⏳ Sección: Countdown previo
-        # --------------------------------------------------
-        group_pre = QGroupBox("Cuenta regresiva previa")
-        layout_pre = QHBoxLayout(group_pre)
-
-        self.ed_pre = QLineEdit("00:30")
-        btn_set_pre = QPushButton("Fijar")
-        btn_run_pre = QPushButton("Iniciar countdown")
-
-        btn_set_pre.clicked.connect(lambda: self.manager.set_pregame_countdown(self.ed_pre.text()))
-        btn_run_pre.clicked.connect(self.manager.start_pregame)
-
-        layout_pre.addWidget(QLabel("MM:SS"))
-        layout_pre.addWidget(self.ed_pre)
-        layout_pre.addWidget(btn_set_pre)
-        layout_pre.addWidget(btn_run_pre)
-
-        # --------------------------------------------------
-        # 🧩 Armar layout general
-        # --------------------------------------------------
-        main_layout.addWidget(group_setup)
-        main_layout.addWidget(group_time)
-        main_layout.addWidget(group_score)
-        main_layout.addWidget(group_period)
-        main_layout.addWidget(group_pre)
-
+    def _on_load_finished(self, _success: bool) -> None:
+        self._page_ready = True
         self.refresh()
 
-    # --------------------------------------------------
-    # 🔄 Actualización visual
-    # --------------------------------------------------
-    def refresh(self):
-        """Actualiza etiquetas de reloj y período."""
-        m = self.manager.match
-        self.lbl_time.setText(self.manager.timer.remaining_mmss)
-        self.lbl_period.setText(str(m.current_period))
+    def refresh(self) -> None:
+        state = self._build_state()
+        self.last_state = state
+        if self._page_ready:
+            self._bridge.push_state(state)
 
+    # ------------------------------------------------------------------
+    # Callbacks from bridge
+    # ------------------------------------------------------------------
+    def create_match(self, local_index: int, visit_index: int, game_type_index: int) -> None:
+        self._on_create_match(local_index, visit_index, game_type_index)
+
+    def set_display_theme(self, theme: str) -> None:
+        if theme not in THEMES:
+            return
+        self._display_theme = theme
+        self._on_set_display_theme(theme)
+        self.refresh()
+
+    def set_operator_theme(self, theme: str) -> None:
+        if theme not in THEMES:
+            return
+        self._operator_theme = theme
+        self.refresh()
