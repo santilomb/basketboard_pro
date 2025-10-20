@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Oficial U15",
+    "quarters": 4,
+    "time_per_quarter": "10:00",
+    "rest_between_quarters": "02:00",
+    "halftime_rest": "05:00"
+  },
+  {
+    "name": "Oficial Mayores",
+    "quarters": 4,
+    "time_per_quarter": "12:00",
+    "rest_between_quarters": "02:00",
+    "halftime_rest": "10:00"
+  },
+  {
+    "name": "Entrenamiento",
+    "quarters": 2,
+    "time_per_quarter": "05:00",
+    "rest_between_quarters": "01:00",
+    "halftime_rest": "00:00"
+  }
+]
+
