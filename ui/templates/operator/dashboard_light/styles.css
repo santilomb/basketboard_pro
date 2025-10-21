@@ -5,11 +5,6 @@
 body.operator {
     margin: 0;
     min-height: 100vh;
-    background: linear-gradient(160deg, #0f172a 0%, #1e293b 55%, #111827 100%);
-    color: #e2e8f0;
-}
-
-body.operator.operator--light {
     background: linear-gradient(160deg, #f5f7fb 0%, #e2e8f0 55%, #cbd5f5 100%);
     color: #1e293b;
 }
@@ -22,18 +17,13 @@ body.operator.operator--light {
 }
 
 .panel {
-    background: rgba(15, 23, 42, 0.82);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 28px;
     padding: 28px 32px;
-    box-shadow: 0 32px 60px rgba(2, 6, 23, 0.35);
+    box-shadow: 0 32px 60px rgba(136, 149, 182, 0.3);
     display: flex;
     flex-direction: column;
     gap: 24px;
-}
-
-body.operator.operator--light .panel {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 32px 60px rgba(136, 149, 182, 0.3);
 }
 
 .panel--score {
@@ -70,13 +60,13 @@ body.operator.operator--light .panel {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: linear-gradient(135deg, rgba(30, 64, 175, 0.55), rgba(30, 64, 175, 0.25));
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.18), rgba(79, 70, 229, 0.08));
 }
 
 .score-card--timer {
     text-align: center;
-    background: linear-gradient(135deg, rgba(20, 184, 166, 0.65), rgba(20, 184, 166, 0.25));
-    color: #042f2e;
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.4), rgba(45, 212, 191, 0.15));
+    color: #064e3b;
     font-weight: 600;
 }
 
@@ -84,7 +74,7 @@ body.operator.operator--light .panel {
     text-transform: uppercase;
     letter-spacing: 0.18em;
     font-size: 0.9rem;
-    opacity: 0.72;
+    opacity: 0.7;
 }
 
 .score-card__value {
@@ -97,7 +87,8 @@ body.operator.operator--light .panel {
     font-weight: 700;
 }
 
-.timer__meta, .timer__countdown {
+.timer__meta,
+.timer__countdown {
     font-size: 1rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -112,10 +103,6 @@ body.operator.operator--light .panel {
 .foul-card {
     padding: 16px 20px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.06);
-}
-
-body.operator.operator--light .foul-card {
     background: rgba(15, 23, 42, 0.08);
 }
 
@@ -134,7 +121,7 @@ body.operator.operator--light .foul-card {
     text-transform: uppercase;
     letter-spacing: 0.18em;
     font-size: 0.8rem;
-    opacity: 0.65;
+    opacity: 0.6;
 }
 
 select,
@@ -143,19 +130,8 @@ input[type="text"] {
     border: none;
     padding: 12px 16px;
     font-size: 1rem;
-    background: rgba(15, 23, 42, 0.55);
-    color: inherit;
-}
-
-body.operator.operator--light select,
-body.operator.operator--light input[type="text"] {
     background: rgba(148, 163, 184, 0.18);
-}
-
-.theme-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+    color: inherit;
 }
 
 .btn {
@@ -166,13 +142,13 @@ body.operator.operator--light input[type="text"] {
     font-weight: 600;
     cursor: pointer;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
-    background: rgba(226, 232, 240, 0.18);
+    background: rgba(30, 41, 59, 0.1);
     color: inherit;
 }
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.3);
+    box-shadow: 0 8px 18px rgba(148, 163, 184, 0.35);
 }
 
 .btn--primary {
@@ -181,7 +157,7 @@ body.operator.operator--light input[type="text"] {
 }
 
 .btn--outline {
-    border: 2px solid rgba(226, 232, 240, 0.35);
+    border: 2px solid rgba(30, 41, 59, 0.3);
     background: transparent;
 }
 
@@ -204,14 +180,10 @@ body.operator.operator--light input[type="text"] {
 .control-card {
     border-radius: 20px;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.06);
     display: flex;
     flex-direction: column;
     gap: 12px;
-}
-
-body.operator.theme-light .control-card {
-    background: rgba(15, 23, 42, 0.06);
 }
 
 .countdown-control {
@@ -238,7 +210,7 @@ body.operator.theme-light .control-card {
 .toast {
     padding: 12px 18px;
     border-radius: 14px;
-    background: rgba(148, 163, 184, 0.3);
+    background: rgba(30, 41, 59, 0.12);
     color: inherit;
     opacity: 0;
     transform: translateY(12px);

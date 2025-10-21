@@ -2,10 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BasketBoard Pro — Operador</title>
-    <link rel="stylesheet" href="{{ static_url }}/css/operator.css" />
+    <link rel="stylesheet" href="{{ template_url }}/styles.css" />
 </head>
-<body class="operator {% block body_variant %}operator--dark{% endblock %}">
+<body class="operator operator--dark">
     <main class="layout">
         <section class="panel panel--score">
             <header class="panel__header">
@@ -144,6 +145,6 @@
     </main>
 
     <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
-    <script src="{{ static_url }}/js/operator.js"></script>
+    <script src="{{ template_url }}/script.js"></script>
 </body>
 </html>

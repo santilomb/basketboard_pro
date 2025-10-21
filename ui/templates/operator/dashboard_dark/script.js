@@ -119,13 +119,12 @@
             'start-countdown': () => bridge.startPregame(),
             'set-countdown': () => {
                 const value = document.getElementById('countdown-input')?.value ?? '';
-                bridge.setPregameCountdown(value, (success) => {
-                    if (!success) {
-                        showToast('Formato de tiempo inválido. Usa MM:SS', 'error');
-                    } else {
-                        showToast('Countdown actualizado');
-                    }
-                });
+                const success = bridge.setPregameCountdown(value);
+                if (!success) {
+                    showToast('Formato de tiempo inválido. Usa MM:SS', 'error');
+                } else {
+                    showToast('Countdown actualizado');
+                }
             },
         };
 

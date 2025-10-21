@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BasketBoard Pro — Display</title>
+    <link rel="stylesheet" href="{{ template_url }}/styles.css" />
+</head>
+<body class="display display--seven-segment"
+      style="--local-primary: {{ state.team_local.color_primary }};
+             --local-secondary: {{ state.team_local.color_secondary }};
+             --visit-primary: {{ state.team_visit.color_primary }};
+             --visit-secondary: {{ state.team_visit.color_secondary }};">
+    <div class="scoreboard scoreboard--seven-segment">
+        <header class="scoreboard__header">
+            <div class="team team--local seven-segment__team">
+                <div class="team__name">{{ state.team_local.name }}</div>
+                <div class="team__score seven-segment__digits">{{ state.points_local }}</div>
+            </div>
+            <div class="scoreboard__timer seven-segment__timer">
+                <div class="timer__label">Tiempo</div>
+                <div class="timer__value seven-segment__digits">{{ state.time }}</div>
+                <div class="timer__period">Período {{ state.period }}</div>
+            </div>
+            <div class="team team--visit seven-segment__team">
+                <div class="team__name">{{ state.team_visit.name }}</div>
+                <div class="team__score seven-segment__digits">{{ state.points_visit }}</div>
+            </div>
+        </header>
+        <section class="scoreboard__details seven-segment__details">
+            <div class="detail__item">
+                <span class="detail__label">Faltas local</span>
+                <span class="detail__value seven-segment__digits">{{ state.fouls_local }}</span>
+            </div>
+            <div class="detail__item">
+                <span class="detail__label">Faltas visita</span>
+                <span class="detail__value seven-segment__digits">{{ state.fouls_visit }}</span>
+            </div>
+            <div class="detail__item">
+                <span class="detail__label">Duración período</span>
+                <span class="detail__value seven-segment__digits">{{ state.game_type.time_per_quarter }}</span>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

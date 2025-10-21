@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BasketBoard Pro — Display</title>
+    <link rel="stylesheet" href="{{ template_url }}/styles.css" />
+</head>
+<body class="display display--widescreen"
+      style="--local-primary: {{ state.team_local.color_primary }};
+             --local-secondary: {{ state.team_local.color_secondary }};
+             --visit-primary: {{ state.team_visit.color_primary }};
+             --visit-secondary: {{ state.team_visit.color_secondary }};">
+    <div class="scoreboard scoreboard--widescreen">
+        <section class="widescreen__panel widescreen__panel--local">
+            <header class="widescreen__team">
+                <div class="widescreen__identity">
+                    <img class="widescreen__logo" src="{{ state.team_local.logo }}" alt="Logo {{ state.team_local.name }}" />
+                    <h2 class="widescreen__name">{{ state.team_local.name }}</h2>
+                </div>
+                <div class="widescreen__score">{{ state.points_local }}</div>
+            </header>
+            <footer class="widescreen__meta">
+                <span class="widescreen__label">Faltas</span>
+                <span class="widescreen__value">{{ state.fouls_local }}</span>
+            </footer>
+        </section>
+        <section class="widescreen__panel widescreen__panel--neutral">
+            <div class="widescreen__neutral">
+                <div class="widescreen__period">Período {{ state.period }}</div>
+                <div class="widescreen__timer">{{ state.time }}</div>
+                <div class="widescreen__detail">{{ state.game_type.name }} · {{ state.game_type.time_per_quarter }} por período</div>
+            </div>
+        </section>
+        <section class="widescreen__panel widescreen__panel--visit">
+            <header class="widescreen__team">
+                <div class="widescreen__identity">
+                    <img class="widescreen__logo" src="{{ state.team_visit.logo }}" alt="Logo {{ state.team_visit.name }}" />
+                    <h2 class="widescreen__name">{{ state.team_visit.name }}</h2>
+                </div>
+                <div class="widescreen__score">{{ state.points_visit }}</div>
+            </header>
+            <footer class="widescreen__meta">
+                <span class="widescreen__label">Faltas</span>
+                <span class="widescreen__value">{{ state.fouls_visit }}</span>
+            </footer>
+        </section>
+    </div>
+</body>
+</html>

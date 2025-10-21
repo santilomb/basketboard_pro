@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, QUrl, Signal, Slot
@@ -18,7 +18,6 @@ from ui.template_renderer import renderer
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = QUrl.fromLocalFile(str(ROOT_DIR) + "/")
-STATIC_URL = "ui/static"
 TEMPLATES_ROOT = Path(__file__).resolve().parent / "templates"
 
 
@@ -33,15 +32,30 @@ def _list_templates(section: str) -> List[str]:
     if not base_dir.exists():
         return []
     templates: List[str] = []
-    for path in sorted(base_dir.glob("*.html")):
+    for path in sorted(base_dir.glob("*/index.html")):
         if path.is_file():
             templates.append(path.relative_to(TEMPLATES_ROOT).as_posix())
     return templates
 
 
 def _template_label(template_path: str) -> str:
-    stem = Path(template_path).stem.replace("_", " ").replace("-", " ")
+    path = Path(template_path)
+    if path.stem.lower() == "index" and path.parent != Path("."):
+        raw = path.parent.name
+    else:
+        raw = path.stem
+    stem = raw.replace("_", " ").replace("-", " ")
     return stem.title()
+
+
+def _template_assets_url(template_name: str) -> str:
+    """Return the URL path where the template assets live."""
+
+    path = PurePosixPath(template_name)
+    directory = path.parent
+    if str(directory) in {".", ""}:
+        return "ui/templates"
+    return (PurePosixPath("ui/templates") / directory).as_posix()
 
 
 def _team_view(team: Team) -> Dict[str, str]:
@@ -77,7 +91,7 @@ class DisplayWindow(QWidget):
         available = self.available_templates
         if not available:
             raise RuntimeError("No display templates available")
-        default_template = "display/scoreboard_dark.html"
+        default_template = "display/scoreboard_dark/index.html"
         if template_name and template_name in available:
             self.template_name = template_name
         elif default_template in available:
@@ -109,7 +123,8 @@ class DisplayWindow(QWidget):
         }
         return {
             "state": state,
-            "static_url": STATIC_URL,
+            "static_url": "ui/static",
+            "template_url": _template_assets_url(self.template_name),
         }
 
     def refresh(self) -> None:
@@ -242,7 +257,7 @@ class OperatorWindow(QWidget):
         if not display_templates:
             raise RuntimeError("No display templates available")
 
-        default_operator_template = "operator/dashboard_dark.html"
+        default_operator_template = "operator/dashboard_dark/index.html"
         if initial_operator_template and initial_operator_template in operator_templates:
             self._operator_template = initial_operator_template
         elif default_operator_template in operator_templates:
@@ -250,7 +265,7 @@ class OperatorWindow(QWidget):
         else:
             self._operator_template = operator_templates[0]
 
-        default_display_template = "display/scoreboard_dark.html"
+        default_display_template = "display/scoreboard_dark/index.html"
         if initial_display_template and initial_display_template in display_templates:
             self._display_template = initial_display_template
         elif default_display_template in display_templates:
@@ -332,7 +347,8 @@ class OperatorWindow(QWidget):
             "display_templates": display_options,
             "operator_template": self._operator_template,
             "display_template": self._display_template,
-            "static_url": STATIC_URL,
+            "static_url": "ui/static",
+            "template_url": _template_assets_url(self._operator_template),
         }
 
     # ------------------------------------------------------------------
