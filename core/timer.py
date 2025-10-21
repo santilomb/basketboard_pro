@@ -1,6 +1,9 @@
 from PySide6.QtCore import QObject, QTimer, Signal
 
 
+DECIS_PER_SECOND = 10
+
+
 def _mmss_to_secs(mmss: str) -> int:
     """
     Convierte 'MM:SS' a segundos (int).
@@ -29,51 +32,64 @@ def _secs_to_mmss(secs: int) -> str:
 
 class CountdownTimer(QObject):
     """
-    Temporizador de cuenta regresiva con tick de 1 segundo.
+    Temporizador de cuenta regresiva con soporte para décimas de segundo.
     Señales:
       - tick(int remaining_secs, str remaining_mmss)
       - finished()
     """
+
+    _LONG_INTERVAL_MS = 1000
+    _SHORT_INTERVAL_MS = 100
+    _CRITICAL_THRESHOLD_DECIS = 60 * DECIS_PER_SECOND
+
     tick = Signal(int, str)
     finished = Signal()
 
     def __init__(self, initial_mmss: str = "10:00", parent=None):
         super().__init__(parent)
-        self._remaining = _mmss_to_secs(initial_mmss)
+        self._remaining_decis = _mmss_to_secs(initial_mmss) * DECIS_PER_SECOND
         self._running = False
 
         self._qtimer = QTimer(self)
-        self._qtimer.setInterval(1000)  # 1s
+        self._qtimer.setInterval(self._LONG_INTERVAL_MS)
         self._qtimer.timeout.connect(self._on_timeout)
 
         # emitir un primer tick para inicializar vistas
-        self.tick.emit(self._remaining, self.remaining_mmss)
+        self.tick.emit(self.remaining_secs, self.remaining_mmss)
 
     # -----------------------
     # Propiedades de lectura
     # -----------------------
     @property
     def remaining_secs(self) -> int:
-        return self._remaining
+        return self._remaining_decis // DECIS_PER_SECOND
 
     @property
     def remaining_mmss(self) -> str:
-        return _secs_to_mmss(self._remaining)
+        return _secs_to_mmss(self.remaining_secs)
+
+    @property
+    def remaining_deciseconds(self) -> int:
+        """Total de décimas de segundo restantes."""
+
+        return self._remaining_decis
 
     # -----------------------
     # Control de tiempo
     # -----------------------
     def set_from_mmss(self, mmss: str):
         """Fija el tiempo restante a partir de 'MM:SS' y emite tick inmediato."""
-        self._remaining = _mmss_to_secs(mmss)
-        self.tick.emit(self._remaining, self.remaining_mmss)
+        self._remaining_decis = _mmss_to_secs(mmss) * DECIS_PER_SECOND
+        self._update_timer_interval()
+        self.tick.emit(self.remaining_secs, self.remaining_mmss)
 
     def start(self):
         """Inicia la cuenta regresiva (si hay tiempo restante)."""
-        if self._remaining <= 0:
+        if self._remaining_decis <= 0:
             return
         if not self._running:
             self._running = True
+            self._update_timer_interval()
             self._qtimer.start()
 
     def pause(self):
@@ -90,15 +106,36 @@ class CountdownTimer(QObject):
     # -----------------------
     # Interno
     # -----------------------
-    def _on_timeout(self):
-        if self._remaining > 0:
-            self._remaining -= 1
-            self.tick.emit(self._remaining, self.remaining_mmss)
+    def _update_timer_interval(self) -> None:
+        """Ajusta el intervalo del QTimer según el tiempo restante."""
 
-        if self._remaining <= 0:
+        if self._remaining_decis > self._CRITICAL_THRESHOLD_DECIS:
+            interval = self._LONG_INTERVAL_MS
+        else:
+            interval = self._SHORT_INTERVAL_MS
+        if self._qtimer.interval() != interval:
+            self._qtimer.setInterval(interval)
+
+    def _on_timeout(self):
+        if self._remaining_decis <= 0:
+            self.pause()
+            self.finished.emit()
+            return
+
+        if self._remaining_decis > self._CRITICAL_THRESHOLD_DECIS:
+            step = DECIS_PER_SECOND
+        else:
+            step = 1
+
+        self._remaining_decis = max(0, self._remaining_decis - step)
+        self.tick.emit(self.remaining_secs, self.remaining_mmss)
+
+        if self._remaining_decis <= 0:
             # asegurar estado consistente y notificar fin
             self.pause()
             self.finished.emit()
+        else:
+            self._update_timer_interval()
 
 
 # Helpers públicos
