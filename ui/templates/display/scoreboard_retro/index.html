@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BasketBoard Pro — Display</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ template_url }}/styles.css" />
+</head>
+<body class="display display--retro">
+    <div class="scoreboard-container">
+        <div class="time-display">
+            <div class="time led-off {{ 'time--critical' if state.time_style == 'critical' else '' }}" data-led-mask="">{{ state.time }}</div>
+        </div>
+
+        <div class="scores-section">
+            <div class="score-box score-box--home">
+                <div class="label">HOME</div>
+                <div class="score home-score">{{ state.points_local }}</div>
+            </div>
+
+            <div class="score-box score-box--period">
+                <div class="label">PERIOD</div>
+                <div class="score period-score">{{ state.period }}</div>
+            </div>
+
+            <div class="score-box score-box--guest">
+                <div class="label">GUEST</div>
+                <div class="score guest-score">{{ state.points_visit }}</div>
+            </div>
+        </div>
+
+        <div class="fouls-section">
+            <div class="foul-box foul-box--home">
+                <div class="foul-label">HOME FOULS</div>
+                <div class="foul-count">{{ state.fouls_local }}</div>
+            </div>
+            <div class="foul-box foul-box--guest">
+                <div class="foul-label">GUEST FOULS</div>
+                <div class="foul-count">{{ state.fouls_visit }}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
