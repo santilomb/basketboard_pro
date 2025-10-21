@@ -82,7 +82,25 @@ body.display {
 .timer__value {
     font-size: 6.2rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    padding: 14px 30px;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.timer__value--regular {
+    background: rgba(14, 19, 32, 0.78);
+    color: #fdfcff;
+}
+
+.timer__value--critical {
+    background: rgba(245, 245, 245, 0.95);
+    color: #d62839;
+    box-shadow: 0 22px 40px rgba(0, 0, 0, 0.2);
 }
 
 .timer__period {

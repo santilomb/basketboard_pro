@@ -19,7 +19,7 @@
                     <span class="score-card__value" data-field="local-score">{{ state.points_local }}</span>
                 </div>
                 <div class="score-card score-card--timer">
-                    <span class="timer__value" data-field="timer">{{ state.time }}</span>
+                    <span class="timer__value {% if state.time_style == 'critical' %}timer__value--critical{% else %}timer__value--regular{% endif %}" data-field="timer">{{ state.time }}</span>
                     <span class="timer__meta" data-field="period">Período {{ state.period }}</span>
                     <span class="timer__countdown" data-field="countdown">Cuenta previa: {{ state.countdown }}</span>
                 </div>

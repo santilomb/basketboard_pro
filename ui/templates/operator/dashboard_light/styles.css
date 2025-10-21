@@ -85,6 +85,24 @@ body.operator {
 .timer__value {
     font-size: 3rem;
     font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 22px;
+    border-radius: 14px;
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 12px 22px rgba(59, 130, 246, 0.18);
+}
+
+.timer__value--regular {
+    background: rgba(15, 23, 42, 0.75);
+    color: #f8fafc;
+}
+
+.timer__value--critical {
+    background: rgba(245, 245, 245, 0.95);
+    color: #d12035;
+    box-shadow: 0 16px 26px rgba(59, 130, 246, 0.14);
 }
 
 .timer__meta,

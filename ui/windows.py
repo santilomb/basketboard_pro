@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path, PurePosixPath
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QObject, QUrl, Signal, Slot
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
@@ -58,6 +58,18 @@ def _template_assets_url(template_name: str) -> str:
     return (PurePosixPath("ui/templates") / directory).as_posix()
 
 
+def _format_game_time(seconds: int) -> Tuple[str, str]:
+    """Return formatted time string and style for the main game clock."""
+
+    remaining = max(0, int(seconds))
+    if remaining >= 60:
+        minutes = remaining // 60
+        secs = remaining % 60
+        return f"{minutes:02d}:{secs:02d}", "regular"
+
+    return f":{remaining:02d}.0", "critical"
+
+
 def _team_view(team: Team) -> Dict[str, str]:
     return {
         "name": team.name,
@@ -91,7 +103,7 @@ class DisplayWindow(QWidget):
         available = self.available_templates
         if not available:
             raise RuntimeError("No display templates available")
-        default_template = "display/scoreboard_dark/index.html"
+        default_template = "display/scoreboard_widescreen/index.html"
         if template_name and template_name in available:
             self.template_name = template_name
         elif default_template in available:
@@ -110,8 +122,10 @@ class DisplayWindow(QWidget):
 
     def _build_context(self) -> Dict[str, object]:
         match = self.manager.match
+        time_value, time_style = _format_game_time(self.manager.timer.remaining_secs)
         state = {
-            "time": self.manager.timer.remaining_mmss,
+            "time": time_value,
+            "time_style": time_style,
             "period": match.current_period,
             "points_local": match.points_local,
             "points_visit": match.points_visit,
@@ -265,7 +279,7 @@ class OperatorWindow(QWidget):
         else:
             self._operator_template = operator_templates[0]
 
-        default_display_template = "display/scoreboard_dark/index.html"
+        default_display_template = "display/scoreboard_widescreen/index.html"
         if initial_display_template and initial_display_template in display_templates:
             self._display_template = initial_display_template
         elif default_display_template in display_templates:
@@ -307,8 +321,10 @@ class OperatorWindow(QWidget):
 
     def _build_state(self) -> Dict[str, object]:
         match = self.manager.match
+        time_value, time_style = _format_game_time(self.manager.timer.remaining_secs)
         state = {
-            "time": self.manager.timer.remaining_mmss,
+            "time": time_value,
+            "time_style": time_style,
             "period": match.current_period,
             "points_local": match.points_local,
             "points_visit": match.points_visit,

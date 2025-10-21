@@ -17,7 +17,7 @@
                     <div class="scoreboard__fouls">Faltas: <span data-field="fouls-local">{{ state.fouls_local }}</span></div>
                 </div>
                 <div class="scoreboard__center">
-                    <div class="scoreboard__timer" data-field="timer">{{ state.time }}</div>
+                    <div class="scoreboard__timer timer-display {% if state.time_style == 'critical' %}timer-display--critical{% else %}timer-display--regular{% endif %}" data-field="timer">{{ state.time }}</div>
                     <div class="scoreboard__period" data-field="period">Período {{ state.period }}</div>
                     <div class="scoreboard__countdown" data-field="countdown">Cuenta previa: {{ state.countdown }}</div>
                 </div>
@@ -43,7 +43,7 @@
             <div class="game-panel">
                 <div class="game-panel__top">
                     <div class="time-card">
-                        <div class="time-card__timer" data-field="timer">{{ state.time }}</div>
+                        <div class="time-card__timer timer-display {% if state.time_style == 'critical' %}timer-display--critical{% else %}timer-display--regular{% endif %}" data-field="timer">{{ state.time }}</div>
                         <div class="time-card__meta">
                             <span data-field="period">Período {{ state.period }}</span>
                         </div>
