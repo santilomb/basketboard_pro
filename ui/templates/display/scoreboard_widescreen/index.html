@@ -13,37 +13,44 @@
              --visit-secondary: {{ state.team_visit.color_secondary }};">
     <div class="scoreboard scoreboard--widescreen">
         <section class="widescreen__panel widescreen__panel--local">
-            <header class="widescreen__team">
-                <div class="widescreen__identity">
-                    <img class="widescreen__logo" src="{{ state.team_local.logo }}" alt="Logo {{ state.team_local.name }}" />
-                    <h2 class="widescreen__name">{{ state.team_local.name }}</h2>
+            <div class="team-column">
+                <div class="team-column__spacer"></div>
+                <div class="team-column__logo-wrapper">
+                    <img class="team-column__logo" src="{{ state.team_local.logo }}" alt="Logo {{ state.team_local.name }}" />
                 </div>
-                <div class="widescreen__score">{{ state.points_local }}</div>
-            </header>
-            <footer class="widescreen__meta">
-                <span class="widescreen__label">Faltas</span>
-                <span class="widescreen__value">{{ state.fouls_local }}</span>
-            </footer>
+                <h2 class="team-column__name">{{ state.team_local.name }}</h2>
+                <div class="team-column__score number-display">{{ state.points_local }}</div>
+                <div class="team-column__fouls">
+                    <span class="team-column__label">Faltas</span>
+                    <span class="team-column__value number-display">{{ state.fouls_local }}</span>
+                </div>
+            </div>
         </section>
         <section class="widescreen__panel widescreen__panel--neutral">
-            <div class="widescreen__neutral">
-                <div class="widescreen__period">Período {{ state.period }}</div>
-                <div class="widescreen__timer">{{ state.time }}</div>
-                <div class="widescreen__detail">{{ state.game_type.name }} · {{ state.game_type.time_per_quarter }} por período</div>
+            <div class="neutral__wrapper">
+                <div class="neutral__primary">
+                    <div class="neutral__group">
+                        <span class="neutral__label">Período</span>
+                        <span class="neutral__value number-display">{{ state.period }}</span>
+                    </div>
+                    <div class="neutral__timer number-display">{{ state.time }}</div>
+                </div>
+                <p class="neutral__detail">{{ state.game_type.name }} · {{ state.game_type.time_per_quarter }} por período</p>
             </div>
         </section>
         <section class="widescreen__panel widescreen__panel--visit">
-            <header class="widescreen__team">
-                <div class="widescreen__identity">
-                    <img class="widescreen__logo" src="{{ state.team_visit.logo }}" alt="Logo {{ state.team_visit.name }}" />
-                    <h2 class="widescreen__name">{{ state.team_visit.name }}</h2>
+            <div class="team-column">
+                <div class="team-column__spacer"></div>
+                <div class="team-column__logo-wrapper">
+                    <img class="team-column__logo" src="{{ state.team_visit.logo }}" alt="Logo {{ state.team_visit.name }}" />
                 </div>
-                <div class="widescreen__score">{{ state.points_visit }}</div>
-            </header>
-            <footer class="widescreen__meta">
-                <span class="widescreen__label">Faltas</span>
-                <span class="widescreen__value">{{ state.fouls_visit }}</span>
-            </footer>
+                <h2 class="team-column__name">{{ state.team_visit.name }}</h2>
+                <div class="team-column__score number-display">{{ state.points_visit }}</div>
+                <div class="team-column__fouls">
+                    <span class="team-column__label">Faltas</span>
+                    <span class="team-column__value number-display">{{ state.fouls_visit }}</span>
+                </div>
+            </div>
         </section>
     </div>
 </body>

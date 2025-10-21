@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap');
+
 :root {
     color-scheme: dark;
     font-family: 'Montserrat', 'Segoe UI', sans-serif;
@@ -33,10 +35,9 @@ body.display {
 .widescreen__panel {
     position: relative;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 56px 48px;
-    gap: 48px;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(48px, 6vw, 72px) clamp(32px, 4vw, 64px);
     color: inherit;
 }
 
@@ -59,85 +60,129 @@ body.display {
     justify-content: center;
 }
 
-.widescreen__team {
+.team-column {
+    width: min(28rem, 80%);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 24px;
+    text-align: center;
+    gap: clamp(12px, 2vh, 24px);
 }
 
-.widescreen__identity {
-    display: flex;
-    align-items: center;
-    gap: 24px;
+.team-column__spacer {
+    width: 100%;
+    height: clamp(16px, 3vh, 40px);
 }
 
-.widescreen__logo {
-    width: clamp(120px, 18vw, 180px);
+.team-column__logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.team-column__logo {
+    width: clamp(120px, 16vw, 180px);
     aspect-ratio: 1;
     object-fit: contain;
     filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.35));
 }
 
-.widescreen__name {
-    font-size: clamp(2.4rem, 2.6vw, 3.6rem);
+.team-column__name {
+    font-size: clamp(2.2rem, 2.4vw, 3.2rem);
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.16em;
     margin: 0;
 }
 
-.widescreen__score {
-    font-size: clamp(6rem, 8vw, 9rem);
-    font-weight: 800;
-    line-height: 1;
-    text-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
-}
-
-.widescreen__meta {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-size: 1.4rem;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-}
-
-.widescreen__label {
-    opacity: 0.8;
-}
-
-.widescreen__value {
-    font-size: clamp(3rem, 3.4vw, 4.2rem);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-}
-
-.widescreen__neutral {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
+.team-column__score {
+    font-size: clamp(5.6rem, 7vw, 8.6rem);
     width: 100%;
 }
 
-.widescreen__period {
-    font-size: clamp(2rem, 2.1vw, 3rem);
-    letter-spacing: 0.3em;
+.team-column__fouls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(6px, 1vh, 12px);
     text-transform: uppercase;
-    opacity: 0.75;
+    letter-spacing: 0.24em;
+    font-size: clamp(1.1rem, 1.4vw, 1.6rem);
 }
 
-.widescreen__timer {
-    font-size: clamp(6rem, 7.2vw, 8.4rem);
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-shadow: 0 18px 32px rgba(0, 0, 0, 0.45);
+.team-column__label {
+    opacity: 0.78;
 }
 
-.widescreen__detail {
+.team-column__value {
+    font-size: clamp(2.6rem, 3.4vw, 4rem);
+    letter-spacing: 0.18em;
+}
+
+.number-display {
+    min-width: 7.2rem;
+    padding: clamp(8px, 1.2vh, 16px) clamp(18px, 2vw, 28px);
+    background: rgba(6, 9, 20, 0.68);
+    border-radius: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+    font-family: 'Segment7Standard', 'DSEG7 Classic', 'Share Tech Mono', 'Roboto Mono', monospace;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.18em;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.neutral__wrapper {
+    width: min(480px, 80vw);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(24px, 3vh, 36px);
+}
+
+.neutral__primary {
+    width: 100%;
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: clamp(18px, 3vh, 28px);
+    justify-items: center;
+}
+
+.neutral__group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(6px, 1vh, 12px);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: clamp(1.2rem, 1.4vw, 1.6rem);
+}
+
+.neutral__label {
+    opacity: 0.7;
+}
+
+.neutral__value {
+    font-size: clamp(2.6rem, 3vw, 3.6rem);
+}
+
+.neutral__timer {
+    width: 100%;
+    font-size: clamp(5.6rem, 6.8vw, 8rem);
+    letter-spacing: 0.26em;
+    text-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+}
+
+.neutral__detail {
+    margin: 0;
     font-size: clamp(1.2rem, 1.3vw, 1.8rem);
     opacity: 0.85;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
+    text-align: center;
 }
 
 @media (max-width: 1200px) {
@@ -147,32 +192,18 @@ body.display {
     }
 
     .widescreen__panel {
-        padding: 48px 32px;
-        align-items: center;
-        text-align: center;
+        padding: clamp(36px, 8vw, 56px) clamp(24px, 6vw, 48px);
     }
 
-    .widescreen__team {
-        flex-direction: column;
+    .team-column {
+        width: 100%;
     }
 
-    .widescreen__identity {
-        flex-direction: column;
+    .team-column__logo {
+        width: clamp(140px, 24vw, 220px);
     }
 
-    .widescreen__score {
-        font-size: clamp(5rem, 12vw, 8rem);
-    }
-
-    .widescreen__logo {
-        width: clamp(140px, 28vw, 200px);
-    }
-
-    .widescreen__meta {
-        align-items: center;
-    }
-
-    .widescreen__neutral {
-        gap: 16px;
+    .neutral__wrapper {
+        width: min(420px, 90vw);
     }
 }
