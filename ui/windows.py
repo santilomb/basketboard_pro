@@ -12,6 +12,7 @@ from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from core.game_manager import GameManager
+from core.timer import CountdownTimer, DECIS_PER_SECOND
 from models.game_type import GameType
 from models.team import Team
 from ui.template_renderer import renderer
@@ -58,16 +59,19 @@ def _template_assets_url(template_name: str) -> str:
     return (PurePosixPath("ui/templates") / directory).as_posix()
 
 
-def _format_game_time(seconds: int) -> Tuple[str, str]:
+def _format_game_time(timer: CountdownTimer) -> Tuple[str, str]:
     """Return formatted time string and style for the main game clock."""
 
-    remaining = max(0, int(seconds))
-    if remaining >= 60:
-        minutes = remaining // 60
-        secs = remaining % 60
+    remaining_secs = max(0, int(timer.remaining_secs))
+    if remaining_secs >= 60:
+        minutes = remaining_secs // 60
+        secs = remaining_secs % 60
         return f"{minutes:02d}:{secs:02d}", "regular"
 
-    return f":{remaining:02d}.0", "critical"
+    remaining_decis = max(0, timer.remaining_deciseconds)
+    secs = remaining_decis // DECIS_PER_SECOND
+    decis = remaining_decis % DECIS_PER_SECOND
+    return f":{secs:02d}.{decis}", "critical"
 
 
 def _team_view(team: Team) -> Dict[str, str]:
@@ -122,7 +126,7 @@ class DisplayWindow(QWidget):
 
     def _build_context(self) -> Dict[str, object]:
         match = self.manager.match
-        time_value, time_style = _format_game_time(self.manager.timer.remaining_secs)
+        time_value, time_style = _format_game_time(self.manager.timer)
         state = {
             "time": time_value,
             "time_style": time_style,
@@ -321,7 +325,7 @@ class OperatorWindow(QWidget):
 
     def _build_state(self) -> Dict[str, object]:
         match = self.manager.match
-        time_value, time_style = _format_game_time(self.manager.timer.remaining_secs)
+        time_value, time_style = _format_game_time(self.manager.timer)
         state = {
             "time": time_value,
             "time_style": time_style,
