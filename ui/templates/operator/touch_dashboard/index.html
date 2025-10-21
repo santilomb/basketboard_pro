@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BasketBoard Pro — Operador táctil</title>
+    <link rel="stylesheet" href="{{ template_url }}/styles.css" />
+</head>
+<body class="operator operator--touch">
+    <main class="touch-layout">
+        <header class="touch-header">
+            <div class="scoreboard">
+                <div class="scoreboard__team scoreboard__team--local">
+                    <div class="scoreboard__label">Local</div>
+                    <div class="scoreboard__name" data-field="local-name">{{ state.team_local.name }}</div>
+                    <div class="scoreboard__score" data-field="local-score">{{ state.points_local }}</div>
+                    <div class="scoreboard__fouls">Faltas: <span data-field="fouls-local">{{ state.fouls_local }}</span></div>
+                </div>
+                <div class="scoreboard__center">
+                    <div class="scoreboard__timer" data-field="timer">{{ state.time }}</div>
+                    <div class="scoreboard__period" data-field="period">Período {{ state.period }}</div>
+                    <div class="scoreboard__countdown" data-field="countdown">Cuenta previa: {{ state.countdown }}</div>
+                </div>
+                <div class="scoreboard__team scoreboard__team--visit">
+                    <div class="scoreboard__label">Visitante</div>
+                    <div class="scoreboard__name" data-field="visit-name">{{ state.team_visit.name }}</div>
+                    <div class="scoreboard__score" data-field="visit-score">{{ state.points_visit }}</div>
+                    <div class="scoreboard__fouls">Faltas: <span data-field="fouls-visit">{{ state.fouls_visit }}</span></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs" role="tablist">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab-target="game">
+                Partido
+            </button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab-target="settings">
+                Ajustes y estética
+            </button>
+        </div>
+
+        <section class="tab-panel is-active" role="tabpanel" data-tab-panel="game">
+            <div class="game-panel">
+                <div class="game-panel__top">
+                    <div class="time-card">
+                        <div class="time-card__timer" data-field="timer">{{ state.time }}</div>
+                        <div class="time-card__meta">
+                            <span data-field="period">Período {{ state.period }}</span>
+                        </div>
+                        <div class="time-card__buttons">
+                            <button type="button" class="touch-btn touch-btn--primary" data-action="start-pause">
+                                <span class="touch-btn__label">Iniciar / Pausar</span>
+                            </button>
+                            <button type="button" class="touch-btn" data-action="reset-time">
+                                <span class="touch-btn__label">Reiniciar período</span>
+                            </button>
+                            <button type="button" class="touch-btn" data-action="next-period">
+                                <span class="touch-btn__label">Siguiente período</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-panel__grid">
+                    <div class="team-column team-column--local">
+                        <h2 class="team-column__title">Local</h2>
+                        <div class="team-column__score" data-field="local-score">{{ state.points_local }}</div>
+                        <div class="team-column__name" data-field="local-name">{{ state.team_local.name }}</div>
+                        <div class="touch-button-grid">
+                            <button type="button" class="touch-btn" data-action="score-local" data-value="3">
+                                <span class="touch-btn__label">+3 puntos</span>
+                            </button>
+                            <button type="button" class="touch-btn" data-action="score-local" data-value="2">
+                                <span class="touch-btn__label">+2 puntos</span>
+                            </button>
+                            <button type="button" class="touch-btn" data-action="score-local" data-value="1">
+                                <span class="touch-btn__label">+1 punto</span>
+                            </button>
+                            <button type="button" class="touch-btn touch-btn--secondary" data-action="score-local" data-value="-1">
+                                <span class="touch-btn__label">-1 punto</span>
+                            </button>
+                        </div>
+                        <div class="team-column__fouls">Faltas: <span data-field="fouls-local">{{ state.fouls_local }}</span></div>
+                        <div class="touch-button-grid touch-button-grid--compact">
+                            <button type="button" class="touch-btn" data-action="foul-local" data-value="1">
+                                <span class="touch-btn__label">Falta +</span>
+                            </button>
+                            <button type="button" class="touch-btn touch-btn--secondary" data-action="foul-local" data-value="-1">
+                                <span class="touch-btn__label">Falta -</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="team-column team-column--visit">
+                        <h2 class="team-column__title">Visitante</h2>
+                        <div class="team-column__score" data-field="visit-score">{{ state.points_visit }}</div>
+                        <div class="team-column__name" data-field="visit-name">{{ state.team_visit.name }}</div>
+                        <div class="touch-button-grid">
+                            <button type="button" class="touch-btn" data-action="score-visit" data-value="3">
+                                <span class="touch-btn__label">+3 puntos</span>
+                            </button>
+                            <button type="button" class="touch-btn" data-action="score-visit" data-value="2">
+                                <span class="touch-btn__label">+2 puntos</span>
+                            </button>
+                            <button type="button" class="touch-btn" data-action="score-visit" data-value="1">
+                                <span class="touch-btn__label">+1 punto</span>
+                            </button>
+                            <button type="button" class="touch-btn touch-btn--secondary" data-action="score-visit" data-value="-1">
+                                <span class="touch-btn__label">-1 punto</span>
+                            </button>
+                        </div>
+                        <div class="team-column__fouls">Faltas: <span data-field="fouls-visit">{{ state.fouls_visit }}</span></div>
+                        <div class="touch-button-grid touch-button-grid--compact">
+                            <button type="button" class="touch-btn" data-action="foul-visit" data-value="1">
+                                <span class="touch-btn__label">Falta +</span>
+                            </button>
+                            <button type="button" class="touch-btn touch-btn--secondary" data-action="foul-visit" data-value="-1">
+                                <span class="touch-btn__label">Falta -</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-panel__bottom">
+                    <div class="countdown-card">
+                        <label for="countdown-input" class="countdown-card__label">Cuenta regresiva previa (MM:SS)</label>
+                        <div class="countdown-card__controls">
+                            <input id="countdown-input" type="text" value="{{ state.countdown }}" placeholder="MM:SS" />
+                            <div class="touch-button-grid touch-button-grid--countdown">
+                                <button type="button" class="touch-btn" data-action="set-countdown">
+                                    <span class="touch-btn__label">Fijar tiempo</span>
+                                </button>
+                                <button type="button" class="touch-btn" data-action="start-countdown">
+                                    <span class="touch-btn__label">Iniciar countdown</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tab-panel" role="tabpanel" data-tab-panel="settings" aria-hidden="true">
+            <form id="match-form" class="settings-form">
+                <h2 class="settings-form__title">Configuración del partido</h2>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Equipo local</span>
+                    <select id="local-team" name="local">
+                        {% for team in teams %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.local %}selected{% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Equipo visitante</span>
+                    <select id="visit-team" name="visit">
+                        {% for team in teams %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.visit %}selected{% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Tipo de juego</span>
+                    <select id="game-type" name="game_type">
+                        {% for g in game_types %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.game_type %}selected{% endif %}>{{ g.name }} — {{ g.time_per_quarter }} por período</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Template del operador</span>
+                    <select id="operator-template" name="operator_template">
+                        {% for template in operator_templates %}
+                        <option value="{{ template.value }}" {% if template.value == operator_template %}selected{% endif %}>{{ template.label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Template del display</span>
+                    <select id="display-template" name="display_template">
+                        {% for template in display_templates %}
+                        <option value="{{ template.value }}" {% if template.value == display_template %}selected{% endif %}>{{ template.label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <div class="settings-form__actions">
+                    <button type="submit" class="touch-btn touch-btn--primary">Aplicar configuración</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <script src="{{ template_url }}/script.js"></script>
+</body>
+</html>

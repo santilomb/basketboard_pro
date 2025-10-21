@@ -1,4 +1,24 @@
 (function () {
+    const INPUT_TAGS = new Set(['INPUT', 'SELECT', 'TEXTAREA']);
+    const KEYBOARD_SHORTCUTS = [
+        { code: 'Space', action: 'start-pause', label: 'Espacio' },
+        { code: 'KeyR', action: 'reset-time', label: 'R' },
+        { code: 'KeyP', action: 'next-period', label: 'P' },
+        { code: 'KeyQ', action: 'score-local', value: 1, label: 'Q' },
+        { code: 'KeyW', action: 'score-local', value: 2, label: 'W' },
+        { code: 'KeyE', action: 'score-local', value: 3, label: 'E' },
+        { code: 'KeyA', action: 'score-local', value: -1, label: 'A' },
+        { code: 'KeyZ', action: 'foul-local', value: 1, label: 'Z' },
+        { code: 'KeyX', action: 'foul-local', value: -1, label: 'X' },
+        { code: 'KeyU', action: 'score-visit', value: 1, label: 'U' },
+        { code: 'KeyI', action: 'score-visit', value: 2, label: 'I' },
+        { code: 'KeyO', action: 'score-visit', value: 3, label: 'O' },
+        { code: 'KeyJ', action: 'score-visit', value: -1, label: 'J' },
+        { code: 'KeyM', action: 'foul-visit', value: 1, label: 'M' },
+        { code: 'KeyN', action: 'foul-visit', value: -1, label: 'N' },
+        { code: 'KeyT', action: 'set-countdown', label: 'T' },
+        { code: 'KeyC', action: 'start-countdown', label: 'C' },
+    ];
 
     function parseIntOr(value, fallback) {
         const parsed = parseInt(value, 10);
@@ -27,17 +47,16 @@
         }, 3200);
     }
 
+    function setText(selector, value) {
+        document.querySelectorAll(selector).forEach((el) => {
+            el.textContent = value;
+        });
+    }
+
     function updateState(state) {
         if (!state) {
             return;
         }
-        const setText = (selector, value) => {
-            const el = document.querySelector(selector);
-            if (el) {
-                el.textContent = value;
-            }
-        };
-
         setText('[data-field="local-score"]', state.points_local);
         setText('[data-field="visit-score"]', state.points_visit);
         setText('[data-field="timer"]', state.time);
@@ -79,7 +98,114 @@
         }
     }
 
+    function triggerAction(bridge, action, value) {
+        switch (action) {
+            case 'start-pause':
+                bridge.startPause();
+                break;
+            case 'reset-time':
+                bridge.resetTime();
+                break;
+            case 'next-period':
+                bridge.nextPeriod();
+                break;
+            case 'start-countdown':
+                bridge.startPregame();
+                showToast('Countdown iniciado');
+                break;
+            case 'set-countdown': {
+                const input = document.getElementById('countdown-input');
+                const countdownValue = input ? input.value : '';
+                const success = bridge.setPregameCountdown(countdownValue ?? '');
+                if (!success) {
+                    showToast('Formato de tiempo inválido. Usa MM:SS', 'error');
+                } else {
+                    showToast('Countdown actualizado');
+                }
+                break;
+            }
+            case 'score-local':
+                bridge.scoreLocal(parseIntOr(value, 0));
+                break;
+            case 'score-visit':
+                bridge.scoreVisit(parseIntOr(value, 0));
+                break;
+            case 'foul-local':
+                bridge.foulLocal(parseIntOr(value, 0));
+                break;
+            case 'foul-visit':
+                bridge.foulVisit(parseIntOr(value, 0));
+                break;
+            default:
+                break;
+        }
+    }
+
+    function registerButtonActions(bridge) {
+        document.querySelectorAll('[data-action]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const action = btn.getAttribute('data-action');
+                if (!action) {
+                    return;
+                }
+                const valueAttr = btn.getAttribute('data-value');
+                const value = valueAttr !== null ? parseIntOr(valueAttr, 0) : undefined;
+                triggerAction(bridge, action, value);
+            });
+        });
+    }
+
+    function keyLabelFromCode(code, fallback) {
+        if (fallback) {
+            return fallback;
+        }
+        if (code === 'Space') {
+            return 'Espacio';
+        }
+        if (code.startsWith('Key')) {
+            return code.replace('Key', '');
+        }
+        return code;
+    }
+
+    function applyShortcutHints(shortcuts) {
+        shortcuts.forEach((shortcut) => {
+            const selector = `[data-action="${shortcut.action}"]${
+                typeof shortcut.value !== 'undefined' ? `[data-value="${shortcut.value}"]` : ''
+            }`;
+            document.querySelectorAll(selector).forEach((el) => {
+                const label = keyLabelFromCode(shortcut.code, shortcut.label);
+                el.setAttribute('title', `Atajo: ${label}`);
+                if (!el.hasAttribute('data-shortcut')) {
+                    el.setAttribute('data-shortcut', label);
+                }
+            });
+        });
+    }
+
+    function setupKeyboardShortcuts(bridge) {
+        document.addEventListener('keydown', (event) => {
+            if (event.repeat) {
+                return;
+            }
+            const target = event.target;
+            if (target && (INPUT_TAGS.has(target.tagName) || target.isContentEditable)) {
+                return;
+            }
+            const shortcut = KEYBOARD_SHORTCUTS.find((item) => item.code === event.code);
+            if (!shortcut) {
+                return;
+            }
+            event.preventDefault();
+            triggerAction(bridge, shortcut.action, shortcut.value);
+        });
+        applyShortcutHints(KEYBOARD_SHORTCUTS);
+    }
+
     function attachBridge(bridge) {
+        registerButtonActions(bridge);
+        setupKeyboardShortcuts(bridge);
+
         const form = document.getElementById('match-form');
         if (form) {
             form.addEventListener('submit', (event) => {
@@ -111,60 +237,6 @@
                 showToast(`Template del display: ${label}`);
             });
         }
-
-        const actionMap = {
-            'start-pause': () => bridge.startPause(),
-            'reset-time': () => bridge.resetTime(),
-            'next-period': () => bridge.nextPeriod(),
-            'start-countdown': () => bridge.startPregame(),
-            'set-countdown': () => {
-                const value = document.getElementById('countdown-input')?.value ?? '';
-                const success = bridge.setPregameCountdown(value);
-                if (!success) {
-                    showToast('Formato de tiempo inválido. Usa MM:SS', 'error');
-                } else {
-                    showToast('Countdown actualizado');
-                }
-            },
-        };
-
-        document.querySelectorAll('[data-action="start-pause"], [data-action="reset-time"], [data-action="next-period"], [data-action="start-countdown"], [data-action="set-countdown"]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const action = btn.getAttribute('data-action');
-                const handler = actionMap[action];
-                if (handler) {
-                    handler();
-                }
-            });
-        });
-
-        document.querySelectorAll('[data-action="score-local"]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const delta = parseIntOr(btn.getAttribute('data-value'), 0);
-                bridge.scoreLocal(delta);
-            });
-        });
-
-        document.querySelectorAll('[data-action="score-visit"]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const delta = parseIntOr(btn.getAttribute('data-value'), 0);
-                bridge.scoreVisit(delta);
-            });
-        });
-
-        document.querySelectorAll('[data-action="foul-local"]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const delta = parseIntOr(btn.getAttribute('data-value'), 0);
-                bridge.foulLocal(delta);
-            });
-        });
-
-        document.querySelectorAll('[data-action="foul-visit"]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const delta = parseIntOr(btn.getAttribute('data-value'), 0);
-                bridge.foulVisit(delta);
-            });
-        });
     }
 
     if (typeof qt === 'undefined' || !qt.webChannelTransport) {
