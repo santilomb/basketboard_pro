@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BasketBoard Pro — Consola estilo tablero</title>
+    <link rel="stylesheet" href="{{ template_url }}/styles.css" />
+</head>
+<body class="operator operator--console">
+    <main class="console-layout">
+        <header class="console-header">
+            <div class="console-display">
+                <div class="console-team console-team--local">
+                    <div class="console-team__label">Local</div>
+                    <div class="console-team__name" data-field="local-name">{{ state.team_local.name }}</div>
+                    <div class="console-team__score" data-field="local-score">{{ state.points_local }}</div>
+                    <div class="console-team__meta">Faltas: <span data-field="fouls-local">{{ state.fouls_local }}</span></div>
+                </div>
+                <div class="console-clock">
+                    <div class="console-clock__section">
+                        <span class="console-clock__label">Tiempo</span>
+                        <span class="console-clock__value timer-display {% if state.time_style == 'critical' %}timer-display--critical{% else %}timer-display--regular{% endif %}" data-field="timer">{{ state.time }}</span>
+                    </div>
+                    <div class="console-clock__section">
+                        <span class="console-clock__label">Período</span>
+                        <span class="console-clock__value" data-field="period">{{ state.period }}</span>
+                    </div>
+                    <div class="console-clock__section">
+                        <span class="console-clock__label">Cuenta previa</span>
+                        <span class="console-clock__value" data-field="countdown">{{ state.countdown }}</span>
+                    </div>
+                </div>
+                <div class="console-team console-team--visit">
+                    <div class="console-team__label">Visitante</div>
+                    <div class="console-team__name" data-field="visit-name">{{ state.team_visit.name }}</div>
+                    <div class="console-team__score" data-field="visit-score">{{ state.points_visit }}</div>
+                    <div class="console-team__meta">Faltas: <span data-field="fouls-visit">{{ state.fouls_visit }}</span></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs" role="tablist">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab-target="game">
+                Juego
+            </button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab-target="settings">
+                Configuración
+            </button>
+        </div>
+
+        <section class="tab-panel is-active" role="tabpanel" data-tab-panel="game">
+            <div class="console-game">
+                <div class="console-game__grid">
+                    <div class="console-card console-card--team">
+                        <h2 class="console-card__title">Local</h2>
+                        <div class="console-card__score" data-field="local-score">{{ state.points_local }}</div>
+                        <div class="console-card__name" data-field="local-name">{{ state.team_local.name }}</div>
+                        <div class="console-button-grid">
+                            <button type="button" class="console-btn console-btn--highlight" data-action="score-local" data-value="3">+3</button>
+                            <button type="button" class="console-btn console-btn--highlight" data-action="score-local" data-value="2">+2</button>
+                            <button type="button" class="console-btn console-btn--highlight" data-action="score-local" data-value="1">+1</button>
+                            <button type="button" class="console-btn console-btn--alt" data-action="score-local" data-value="-1">-1</button>
+                        </div>
+                        <div class="console-card__meta">Faltas: <span data-field="fouls-local">{{ state.fouls_local }}</span></div>
+                        <div class="console-button-grid console-button-grid--compact">
+                            <button type="button" class="console-btn" data-action="foul-local" data-value="1">Falta +</button>
+                            <button type="button" class="console-btn console-btn--alt" data-action="foul-local" data-value="-1">Falta -</button>
+                        </div>
+                    </div>
+
+                    <div class="console-card console-card--center">
+                        <h2 class="console-card__title">Reloj</h2>
+                    <div class="console-timer">
+                        <span class="timer-display {% if state.time_style == 'critical' %}timer-display--critical{% else %}timer-display--regular{% endif %}" data-field="timer">{{ state.time }}</span>
+                    </div>
+                        <div class="console-period" data-field="period">Período {{ state.period }}</div>
+                        <div class="console-time-adjust">
+                            <div class="console-time-adjust__row">
+                                <button type="button" class="console-btn console-btn--small" data-action="adjust-time" data-value="60">+1:00</button>
+                                <button type="button" class="console-btn console-btn--small" data-action="adjust-time" data-value="10">+0:10</button>
+                                <button type="button" class="console-btn console-btn--small" data-action="adjust-time" data-value="1">+0:01</button>
+                            </div>
+                            <div class="console-time-adjust__row">
+                                <button type="button" class="console-btn console-btn--small console-btn--alt" data-action="adjust-time" data-value="-60">-1:00</button>
+                                <button type="button" class="console-btn console-btn--small console-btn--alt" data-action="adjust-time" data-value="-10">-0:10</button>
+                                <button type="button" class="console-btn console-btn--small console-btn--alt" data-action="adjust-time" data-value="-1">-0:01</button>
+                            </div>
+                        </div>
+                        <div class="console-control-grid">
+                            <button type="button" class="console-btn console-btn--wide console-btn--highlight" data-action="start-timer">Iniciar</button>
+                            <button type="button" class="console-btn console-btn--wide console-btn--alt" data-action="pause-timer">Parar</button>
+                            <button type="button" class="console-btn console-btn--wide" data-action="reset-time">Reset tiempo</button>
+                            <button type="button" class="console-btn console-btn--wide" data-action="next-period">Siguiente período</button>
+                        </div>
+                        <div class="console-countdown">
+                            <label class="console-countdown__label" for="countdown-input">Cuenta previa (MM:SS)</label>
+                            <div class="console-countdown__controls">
+                                <input id="countdown-input" type="text" value="{{ state.countdown }}" placeholder="MM:SS" />
+                                <div class="console-button-grid console-button-grid--compact">
+                                    <button type="button" class="console-btn" data-action="set-countdown">Fijar</button>
+                                    <button type="button" class="console-btn console-btn--highlight" data-action="start-countdown">Iniciar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="console-card console-card--team">
+                        <h2 class="console-card__title">Visitante</h2>
+                        <div class="console-card__score" data-field="visit-score">{{ state.points_visit }}</div>
+                        <div class="console-card__name" data-field="visit-name">{{ state.team_visit.name }}</div>
+                        <div class="console-button-grid">
+                            <button type="button" class="console-btn console-btn--highlight" data-action="score-visit" data-value="3">+3</button>
+                            <button type="button" class="console-btn console-btn--highlight" data-action="score-visit" data-value="2">+2</button>
+                            <button type="button" class="console-btn console-btn--highlight" data-action="score-visit" data-value="1">+1</button>
+                            <button type="button" class="console-btn console-btn--alt" data-action="score-visit" data-value="-1">-1</button>
+                        </div>
+                        <div class="console-card__meta">Faltas: <span data-field="fouls-visit">{{ state.fouls_visit }}</span></div>
+                        <div class="console-button-grid console-button-grid--compact">
+                            <button type="button" class="console-btn" data-action="foul-visit" data-value="1">Falta +</button>
+                            <button type="button" class="console-btn console-btn--alt" data-action="foul-visit" data-value="-1">Falta -</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tab-panel" role="tabpanel" data-tab-panel="settings" aria-hidden="true">
+            <form id="match-form" class="settings-form">
+                <h2 class="settings-form__title">Configuración del partido</h2>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Equipo local</span>
+                    <select id="local-team" name="local">
+                        {% for team in teams %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.local %}selected{% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Equipo visitante</span>
+                    <select id="visit-team" name="visit">
+                        {% for team in teams %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.visit %}selected{% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Tipo de juego</span>
+                    <select id="game-type" name="game_type">
+                        {% for g in game_types %}
+                        <option value="{{ loop.index0 }}" {% if loop.index0 == selected.game_type %}selected{% endif %}>{{ g.name }} — {{ g.time_per_quarter }} por período</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Template del operador</span>
+                    <select id="operator-template" name="operator_template">
+                        {% for template in operator_templates %}
+                        <option value="{{ template.value }}" {% if template.value == operator_template %}selected{% endif %}>{{ template.label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="settings-form__field">
+                    <span class="settings-form__label">Template del display</span>
+                    <select id="display-template" name="display_template">
+                        {% for template in display_templates %}
+                        <option value="{{ template.value }}" {% if template.value == display_template %}selected{% endif %}>{{ template.label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <div class="settings-form__actions">
+                    <button type="submit" class="console-btn console-btn--highlight">Aplicar configuración</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <script src="{{ template_url }}/script.js"></script>
+</body>
+</html>

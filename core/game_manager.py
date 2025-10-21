@@ -40,6 +40,20 @@ class GameManager(QObject):
             self.timer.start()
         self.updated.emit()
 
+    def start_time(self) -> None:
+        """Inicia el cronómetro si hay tiempo disponible."""
+
+        if self.timer.remaining_secs <= 0:
+            return
+        self.timer.start()
+        self.updated.emit()
+
+    def pause_time(self) -> None:
+        """Pausa el cronómetro del partido."""
+
+        self.timer.pause()
+        self.updated.emit()
+
     def reset_time(self):
         """Reinicia el tiempo del cuarto actual."""
         self.timer.reset(self.match.game_type.time_per_quarter)
@@ -48,6 +62,12 @@ class GameManager(QObject):
     def set_time(self, mmss: str):
         """Ajusta manualmente el tiempo restante."""
         self.timer.reset(mmss)
+        self.updated.emit()
+
+    def adjust_time(self, delta_secs: int) -> None:
+        """Suma o resta segundos al tiempo restante del período."""
+
+        self.timer.adjust_seconds(delta_secs)
         self.updated.emit()
 
     # -------------------------------------------------

@@ -181,6 +181,14 @@ class OperatorBridge(QObject):
         self._window.manager.start_pause()
 
     @Slot()
+    def startTimer(self) -> None:
+        self._window.manager.start_time()
+
+    @Slot()
+    def pauseTimer(self) -> None:
+        self._window.manager.pause_time()
+
+    @Slot()
     def resetTime(self) -> None:
         self._window.manager.reset_time()
 
@@ -199,6 +207,10 @@ class OperatorBridge(QObject):
     @Slot(int)
     def scoreVisit(self, delta: int) -> None:
         self._window.manager.score_visit(delta)
+
+    @Slot(int)
+    def adjustTime(self, delta: int) -> None:
+        self._window.manager.adjust_time(delta)
 
     @Slot(int)
     def foulLocal(self, delta: int) -> None:
