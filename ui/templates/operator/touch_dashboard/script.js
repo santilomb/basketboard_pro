@@ -142,17 +142,19 @@
     }
 
     function registerButtonActions(bridge) {
-        document.querySelectorAll('[data-action]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const action = btn.getAttribute('data-action');
-                if (!action) {
-                    return;
-                }
-                const valueAttr = btn.getAttribute('data-value');
-                const value = valueAttr !== null ? parseIntOr(valueAttr, 0) : undefined;
-                triggerAction(bridge, action, value);
+        document
+            .querySelectorAll('[data-action]')
+            .forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const action = btn.getAttribute('data-action');
+                    if (!action) {
+                        return;
+                    }
+                    const valueAttr = btn.getAttribute('data-value');
+                    const value = valueAttr !== null ? parseIntOr(valueAttr, 0) : undefined;
+                    triggerAction(bridge, action, value);
+                });
             });
-        });
     }
 
     function keyLabelFromCode(code, fallback) {
@@ -202,7 +204,37 @@
         applyShortcutHints(KEYBOARD_SHORTCUTS);
     }
 
+    function setupTabs() {
+        const buttons = Array.from(document.querySelectorAll('[data-tab-target]'));
+        const panels = Array.from(document.querySelectorAll('[data-tab-panel]'));
+        const activate = (target) => {
+            buttons.forEach((btn) => {
+                const isActive = btn.getAttribute('data-tab-target') === target;
+                btn.classList.toggle('is-active', isActive);
+                btn.setAttribute('aria-selected', String(isActive));
+            });
+            panels.forEach((panel) => {
+                const isActive = panel.getAttribute('data-tab-panel') === target;
+                panel.classList.toggle('is-active', isActive);
+                panel.setAttribute('aria-hidden', String(!isActive));
+            });
+        };
+        buttons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-tab-target');
+                if (target) {
+                    activate(target);
+                }
+            });
+        });
+        const defaultTarget = buttons[0]?.getAttribute('data-tab-target');
+        if (defaultTarget) {
+            activate(defaultTarget);
+        }
+    }
+
     function attachBridge(bridge) {
+        setupTabs();
         registerButtonActions(bridge);
         setupKeyboardShortcuts(bridge);
 
