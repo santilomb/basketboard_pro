@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BasketBoard Pro — Display</title>
+    <link rel="stylesheet" href="{{ template_url }}/styles.css" />
+</head>
+<body class="display display--retro">
+    <div class="retro-board">
+        <div class="retro-board__inner">
+            <header class="retro-board__timer">
+                <div class="retro-label retro-label--timer">TIME</div>
+                <div class="retro-digits retro-digits--time retro-digits--{{ 'critical' if state.time_style == 'critical' else 'regular' }}">{{ state.time }}</div>
+            </header>
+            <main class="retro-board__main">
+                <section class="retro-section retro-section--team retro-section--home">
+                    <div class="retro-label">HOME</div>
+                    <div class="retro-digits retro-digits--score">{{ state.points_local }}</div>
+                    <div class="retro-sub">
+                        <span class="retro-sub__label">FOULS</span>
+                        <span class="retro-digits retro-digits--small">{{ state.fouls_local }}</span>
+                    </div>
+                </section>
+                <section class="retro-section retro-section--period">
+                    <div class="retro-label">PERIOD</div>
+                    <div class="retro-digits retro-digits--period">{{ state.period }}</div>
+                </section>
+                <section class="retro-section retro-section--team retro-section--guest">
+                    <div class="retro-label">GUEST</div>
+                    <div class="retro-digits retro-digits--score">{{ state.points_visit }}</div>
+                    <div class="retro-sub">
+                        <span class="retro-sub__label">FOULS</span>
+                        <span class="retro-digits retro-digits--small">{{ state.fouls_visit }}</span>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
