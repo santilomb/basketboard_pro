@@ -103,6 +103,25 @@ class CountdownTimer(QObject):
         self.pause()
         self.set_from_mmss(mmss)
 
+    def adjust_seconds(self, delta_secs: int) -> None:
+        """Ajusta el tiempo restante sumando o restando segundos."""
+
+        try:
+            delta = int(delta_secs)
+        except (TypeError, ValueError):
+            delta = 0
+
+        if not delta:
+            return
+
+        self._remaining_decis = max(0, self._remaining_decis + delta * DECIS_PER_SECOND)
+        if self._remaining_decis == 0 and self._running:
+            # Si se agotó el tiempo mientras estaba corriendo, detenemos el reloj
+            self.pause()
+
+        self._update_timer_interval()
+        self.tick.emit(self.remaining_secs, self.remaining_mmss)
+
     # -----------------------
     # Interno
     # -----------------------
