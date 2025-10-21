@@ -1,19 +1,19 @@
 [
   {
-    "name": "Unión de Sion",
-    "logo": "data/logos/union_sion.png",
-    "color_primary": "#ff2d2d",
-    "color_secondary": "#ffffff"
+    "name": "Unión Vecinal",
+    "logo": "data/logos/union.png",
+    "color_primary": "#8c5216",
+    "color_secondary": "#ffde59"
   },
   {
-    "name": "Estudiantes LP",
-    "logo": "data/logos/estudiantes_lp.png",
-    "color_primary": "#0040ff",
-    "color_secondary": "#ffffff"
+    "name": "Atenas",
+    "logo": "data/logos/atenas.png",
+    "color_primary": "#faf5f1",
+    "color_secondary": "#f12602"
   },
   {
-    "name": "Peñarol",
-    "logo": "data/logos/penarol.png",
+    "name": "Platense",
+    "logo": "data/logos/platense.png",
     "color_primary": "#222222",
     "color_secondary": "#f2d13f"
   }
