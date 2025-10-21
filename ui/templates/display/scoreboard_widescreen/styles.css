@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap');
 
 :root {
     color-scheme: dark;
@@ -35,9 +35,9 @@ body.display {
 .widescreen__panel {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: clamp(48px, 6vw, 72px) clamp(32px, 4vw, 64px);
+    padding: clamp(32px, 4vw, 48px) clamp(32px, 4vw, 64px);
     color: inherit;
 }
 
@@ -56,7 +56,7 @@ body.display {
     color: #f6f9ff;
     text-align: center;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
 }
 
@@ -66,12 +66,12 @@ body.display {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: clamp(12px, 2vh, 24px);
+    gap: clamp(10px, 1.8vh, 22px);
 }
 
 .team-column__spacer {
     width: 100%;
-    height: clamp(16px, 3vh, 40px);
+    height: clamp(8px, 1.5vh, 20px);
 }
 
 .team-column__logo-wrapper {
@@ -96,7 +96,7 @@ body.display {
 }
 
 .team-column__score {
-    font-size: clamp(5.6rem, 7vw, 8.6rem);
+    font-size: clamp(8.4rem, 10.5vw, 12.9rem);
     width: 100%;
 }
 
@@ -104,10 +104,11 @@ body.display {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(6px, 1vh, 12px);
+    gap: clamp(8px, 1.2vh, 16px);
     text-transform: uppercase;
     letter-spacing: 0.24em;
-    font-size: clamp(1.1rem, 1.4vw, 1.6rem);
+    font-size: clamp(1.65rem, 2.1vw, 2.4rem);
+    margin-top: clamp(24px, 3vh, 40px);
 }
 
 .team-column__label {
@@ -115,25 +116,32 @@ body.display {
 }
 
 .team-column__value {
-    font-size: clamp(2.6rem, 3.4vw, 4rem);
-    letter-spacing: 0.18em;
+    font-size: clamp(3.9rem, 5.1vw, 6rem);
+    letter-spacing: 0.16em;
 }
 
 .number-display {
     min-width: 7.2rem;
     padding: clamp(8px, 1.2vh, 16px) clamp(18px, 2vw, 28px);
-    background: rgba(6, 9, 20, 0.68);
+    background: rgba(6, 9, 20, 0.78);
     border-radius: 18px;
     border: 2px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
-    font-family: 'Segment7Standard', 'DSEG7 Classic', 'Share Tech Mono', 'Roboto Mono', monospace;
+    font-family: 'Inter', 'Share Tech Mono', 'Roboto Mono', 'Montserrat', sans-serif;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.number-display--critical {
+    background: rgba(245, 245, 245, 0.92);
+    color: #d12b39;
+    border-color: rgba(209, 43, 57, 0.35);
+    box-shadow: 0 22px 40px rgba(0, 0, 0, 0.28);
 }
 
 .neutral__wrapper {
@@ -141,14 +149,14 @@ body.display {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(24px, 3vh, 36px);
+    gap: clamp(20px, 2.6vh, 32px);
 }
 
 .neutral__primary {
     width: 100%;
     display: grid;
     grid-template-rows: auto auto;
-    gap: clamp(18px, 3vh, 28px);
+    gap: clamp(16px, 2.2vh, 26px);
     justify-items: center;
 }
 
@@ -159,7 +167,7 @@ body.display {
     gap: clamp(6px, 1vh, 12px);
     text-transform: uppercase;
     letter-spacing: 0.22em;
-    font-size: clamp(1.2rem, 1.4vw, 1.6rem);
+    font-size: clamp(1.65rem, 2.1vw, 2.4rem);
 }
 
 .neutral__label {
@@ -167,13 +175,13 @@ body.display {
 }
 
 .neutral__value {
-    font-size: clamp(2.6rem, 3vw, 3.6rem);
+    font-size: clamp(3.9rem, 4.8vw, 6rem);
 }
 
 .neutral__timer {
     width: 100%;
     font-size: clamp(5.6rem, 6.8vw, 8rem);
-    letter-spacing: 0.26em;
+    letter-spacing: 0.12em;
     text-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
 }
 

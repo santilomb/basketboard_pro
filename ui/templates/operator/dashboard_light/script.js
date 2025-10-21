@@ -59,13 +59,19 @@
         }
         setText('[data-field="local-score"]', state.points_local);
         setText('[data-field="visit-score"]', state.points_visit);
-        setText('[data-field="timer"]', state.time);
         setText('[data-field="period"]', `Período ${state.period}`);
         setText('[data-field="countdown"]', `Cuenta previa: ${state.countdown}`);
         setText('[data-field="fouls-local"]', state.fouls_local);
         setText('[data-field="fouls-visit"]', state.fouls_visit);
         setText('[data-field="local-name"]', state.team_local.name);
         setText('[data-field="visit-name"]', state.team_visit.name);
+
+        document.querySelectorAll('[data-field="timer"]').forEach((el) => {
+            el.textContent = state.time;
+            const isCritical = state.time_style === 'critical';
+            el.classList.toggle('timer__value--critical', isCritical);
+            el.classList.toggle('timer__value--regular', !isCritical);
+        });
 
         const countdownInput = document.getElementById('countdown-input');
         if (countdownInput && document.activeElement !== countdownInput) {

@@ -33,7 +33,7 @@
                         <span class="neutral__label">Período</span>
                         <span class="neutral__value number-display">{{ state.period }}</span>
                     </div>
-                    <div class="neutral__timer number-display">{{ state.time }}</div>
+                    <div class="neutral__timer number-display{% if state.time_style == 'critical' %} number-display--critical{% endif %}">{{ state.time }}</div>
                 </div>
                 <p class="neutral__detail">{{ state.game_type.name }} · {{ state.game_type.time_per_quarter }} por período</p>
             </div>

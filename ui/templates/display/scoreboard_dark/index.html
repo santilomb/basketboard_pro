@@ -19,7 +19,7 @@
             </div>
             <div class="scoreboard__timer">
                 <div class="timer__label">Tiempo restante</div>
-                <div class="timer__value">{{ state.time }}</div>
+                <div class="timer__value timer__value--{{ 'critical' if state.time_style == 'critical' else 'regular' }}">{{ state.time }}</div>
                 <div class="timer__period">Período {{ state.period }}</div>
             </div>
             <div class="team team--visit">

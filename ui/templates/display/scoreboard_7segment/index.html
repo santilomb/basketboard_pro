@@ -19,7 +19,7 @@
             </div>
             <div class="scoreboard__timer seven-segment__timer">
                 <div class="timer__label">Tiempo</div>
-                <div class="timer__value seven-segment__digits">{{ state.time }}</div>
+                <div class="timer__value seven-segment__digits timer__value--{{ 'critical' if state.time_style == 'critical' else 'regular' }}">{{ state.time }}</div>
                 <div class="timer__period">Período {{ state.period }}</div>
             </div>
             <div class="team team--visit seven-segment__team">

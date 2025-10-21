@@ -120,7 +120,15 @@ body.display {
 .timer__value {
     font-size: 6rem;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    padding: 14px 30px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(22, 245, 166, 0.4);
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .timer__period {
@@ -130,9 +138,23 @@ body.display {
 
 .seven-segment__digits {
     font-family: 'DS-Digital', 'Seven Segment', 'DSEG7 Classic', 'Orbitron', 'Roboto Mono', monospace;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     text-shadow: 0 0 18px rgba(22, 245, 166, 0.85), 0 0 42px rgba(22, 245, 166, 0.65);
+}
+
+.timer__value--regular {
+    color: #16f5a6;
+    background: rgba(0, 0, 0, 0.55);
+    border-color: rgba(22, 245, 166, 0.4);
+}
+
+.timer__value--critical {
+    color: #ff424d;
+    background: rgba(240, 240, 240, 0.92);
+    border-color: rgba(255, 66, 77, 0.35);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 0 18px rgba(255, 66, 77, 0.85), 0 0 32px rgba(255, 66, 77, 0.65);
 }
 
 .seven-segment__details .detail__item {
